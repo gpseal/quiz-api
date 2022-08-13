@@ -1,0 +1,29 @@
+{
+  "name": "assessment-1-node-js-restful-api-gpseal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/otago-polytechnic-bit-courses/assessment-1-node-js-restful-api-gpseal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/otago-polytechnic-bit-courses/assessment-1-node-js-restful-api-gpseal/issues"
+  },
+  "homepage": "https://github.com/otago-polytechnic-bit-courses/assessment-1-node-js-restful-api-gpseal#readme",
+  "type": "module",
+  "dependencies": {
+    "@prisma/client": "^4.2.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1"
+  },
+  "devDependencies": {
+    "prisma": "^4.2.1"
+  }
+}
