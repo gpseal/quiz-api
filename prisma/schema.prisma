@@ -12,15 +12,15 @@ datasource db {
 }
 
 model Category {
-  id          String       @unique
-  createdAt   DateTime     @default(now())
-  quizzes Quiz[]
+  id            Int         @id @default(autoincrement())
+  categoryName  String
+  quizzes       Quiz[]
 }
 
 model Quiz {
   id            Int         @id @default(autoincrement())
-  name          String
-  categoryName  String
-  createdAt     DateTime    @default(now())
-  category      Category    @relation(fields: [categoryName], references: [id], onDelete: Cascade)
+  quizName      String
+  category      Category    @relation(fields: [categoryid], references: [id])
+  categoryid    Int
+  questions     Json?
 }
