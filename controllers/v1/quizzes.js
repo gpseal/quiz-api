@@ -1,4 +1,6 @@
 import prisma from "../../utils/prisma.js";
+import axios from "axios";
+
 import {
   getResource,
   deleteResource,
@@ -23,13 +25,19 @@ const getQuizzes = (_, res) => {
 // };
 
 const createQuiz = async (req, res) => {
-
+  
 
   try {
+    const response = await axios.get(
+      `https://opentdb.com/api.php?amount=10&category=18&difficulty=${req.body.difficulty}&type=${req.body.type}`
+    );
+    const questions = response.data.results;  //assigning api data
+    console.log(questions)
+
     const { quizName, categoryid } = req.body;
 
     await prisma.quiz.create({
-      data: { quizName, categoryid },
+      data: { quizName, categoryid, questions },
     });
 
     const newQuizzes = await prisma.quiz.findMany();
