@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 const router = Router();
 
 import {
@@ -8,9 +8,9 @@ import {
   updateQuiz,
   deleteQuiz,
   seedQuizzes,
-} from "../../controllers/v1/quizzes.js";
+} from '../../controllers/v1/quizzes.js';
 
-router.route("/").get(getQuizzes).post(createQuiz);
-router.route("/:id").get(getQuiz).put(updateQuiz).delete(deleteQuiz);
+router.route('/').get(getQuizzes).post(createQuiz);
+router.route('/:id').get(getQuiz).put(updateQuiz).delete(deleteQuiz);
 
 export default router;

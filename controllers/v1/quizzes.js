@@ -1,16 +1,15 @@
-import prisma from "../../utils/prisma.js";
-import axios from "axios";
+import axios from 'axios';
+import prisma from '../../utils/prisma.js';
 
 import {
   getResource,
   deleteResource,
   getResources,
-  createResource,
   updateResource,
   seedData,
-} from "./base.js";
+} from './base.js';
 
-const tableName = "quiz";
+const tableName = 'quiz';
 
 const getQuiz = (req, res) => {
   getResource(req, res, prisma.quiz, tableName);
@@ -29,7 +28,7 @@ const createQuiz = async (req, res) => {
     const response = await axios.get(
       `https://opentdb.com/api.php?amount=10&category=18&difficulty=${req.body.difficulty}&type=${req.body.type}`,
     );
-    const questions = response.data.results; //assigning api data
+    const questions = response.data.results; // assigning api data
     console.log(questions);
 
     const { quizName, categoryid } = req.body;
@@ -41,7 +40,7 @@ const createQuiz = async (req, res) => {
     const newQuizzes = await prisma.quiz.findMany();
 
     return res.status(201).json({
-      msg: "Quiz successfully created",
+      msg: 'Quiz successfully created',
       data: newQuizzes,
     });
   } catch (err) {
@@ -59,8 +58,8 @@ const deleteQuiz = (req, res) => {
   deleteResource(req, res, prisma.quiz, tableName);
 };
 
-const deptURL =
-  "https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json";
+// prettier-ignore
+const deptURL = 'https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json';
 
 const seedQuizzes = (req, res) => {
   seedData(req, res, prisma.quiz, tableName, deptURL);

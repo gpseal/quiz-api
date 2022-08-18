@@ -1,4 +1,4 @@
-import prisma from "../../utils/prisma.js";
+import prisma from '../../utils/prisma.js';
 
 // const catchReturn = (response, err) => {
 //     return res.status(500).json({
@@ -66,9 +66,9 @@ const deleteResource = async (req, res, model, tableName) => {
       where: { id: Number(userID) },
     });
 
-    if (user.role !== "SUPER_ADMIN_USER") {
+    if (user.role !== 'SUPER_ADMIN_USER') {
       return res.status(403).json({
-        msg: "Not authorized to access this route",
+        msg: 'Not authorized to access this route',
       });
     }
 
@@ -201,7 +201,7 @@ const seedData = async (req, res, model, tableName, URL) => {
     const newResources = await model.findMany();
 
     return res.status(201).json({
-      msg: "Departments successfully created",
+      msg: 'Departments successfully created',
       data: newResources,
     });
   } catch (error) {
