@@ -62,7 +62,9 @@ const getResources = async (res, model, tableName, include) => {
 const deleteResource = async (req, res, model, tableName) => {
   try {
     const userID = req.user.id;
-    const user = await prisma.user.findUnique({ where: { id: Number(userID) } });
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userID) },
+    });
 
     if (user.role !== "SUPER_ADMIN_USER") {
       return res.status(403).json({
@@ -121,15 +123,13 @@ const createResource = async (req, res, model, tableName) => {
     // }
     // console.log(first)
 
-    
-
     await model.create({
       data: req.body,
     });
     /**
-    * creates record with req body plus ID of user creating it
-    * bwhich is added to request in middleware
-    */
+     * creates record with req body plus ID of user creating it
+     * bwhich is added to request in middleware
+     */
 
     const newResources = await model.findMany(); // for displaying all records
 
@@ -188,18 +188,15 @@ const updateResource = async (req, res, model, tableName) => {
 };
 
 const seedData = async (req, res, model, tableName, URL) => {
-
   try {
-    const response = await axios.get(
-      URL
-    );
-    const data = response.data;  //assigning api data
+    const response = await axios.get(URL);
+    const data = response.data; //assigning api data
 
     // console.log(data);
 
     // const newDepartments = await prisma.department.findMany();
     // await prisma.department.deleteMany() // Delete all documents in the departments collection
-    await model.createMany({data: data}) // Insert documents into the collection (from api axios get)
+    await model.createMany({ data: data }); // Insert documents into the collection (from api axios get)
 
     const newResources = await model.findMany();
 
@@ -207,11 +204,10 @@ const seedData = async (req, res, model, tableName, URL) => {
       msg: "Departments successfully created",
       data: newResources,
     });
-    
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 export {
   getResource,
@@ -219,5 +215,5 @@ export {
   deleteResource,
   updateResource,
   createResource,
-  seedData
+  seedData,
 };
