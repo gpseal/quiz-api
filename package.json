@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prettier:check": "npx prettier --check .",
     "prettier:write": "npx pretty-quick --staged",
-    "lint:check": "npx eslint ."
+    "lint:check": "npx eslint .",
+    "prisma:open": "npx prisma studio",
+    "prisma:migrate": "npx prisma migrate reset && npx prisma migrate dev"
   },
   "repository": {
     "type": "git",
