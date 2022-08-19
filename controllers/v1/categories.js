@@ -34,8 +34,8 @@ const deleteCategory = (req, res) => {
   deleteResource(req, res, prisma.category, tableName);
 };
 
-const deptURL =
-  'https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json';
+// prettier-ignore
+const deptURL = 'https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json';
 
 const seedCategories = (req, res) => {
   seedData(req, res, prisma.category, tableName, deptURL);

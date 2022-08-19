@@ -19,7 +19,7 @@ const BASE_URL = 'api';
  */
 const CURRENT_VERSION = 'v1';
 
-const PORT = process.env.PORT;
+const { PORT } = process.env;
 
 app.use(urlencoded({ extended: false }));
 app.use(json());

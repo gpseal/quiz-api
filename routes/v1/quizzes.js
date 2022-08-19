@@ -1,5 +1,4 @@
 import { Router } from 'express';
-const router = Router();
 
 import {
   getQuiz,
@@ -7,8 +6,9 @@ import {
   createQuiz,
   updateQuiz,
   deleteQuiz,
-  seedQuizzes,
 } from '../../controllers/v1/quizzes.js';
+
+const router = Router();
 
 router.route('/').get(getQuizzes).post(createQuiz);
 router.route('/:id').get(getQuiz).put(updateQuiz).delete(deleteQuiz);

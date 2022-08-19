@@ -1,3 +1,4 @@
+import axios from 'axios';
 import prisma from '../../utils/prisma.js';
 
 // const catchReturn = (response, err) => {
@@ -30,7 +31,7 @@ const getResource = async (req, res, model, tableName) => {
 
     return res.json({ data: resource }); // displays record
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -54,7 +55,7 @@ const getResources = async (res, model, tableName, include) => {
 
     return res.status(200).json({ data: resources }); // displays all resources
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -93,7 +94,7 @@ const deleteResource = async (req, res, model, tableName) => {
       msg: `${tableName} with the id: ${id} successfully deleted`,
     });
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -138,7 +139,7 @@ const createResource = async (req, res, model, tableName) => {
       data: newResources, // show all records
     });
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -183,20 +184,22 @@ const updateResource = async (req, res, model, tableName) => {
       data: resource, // displays new record data
     });
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
 const seedData = async (req, res, model, tableName, URL) => {
   try {
     const response = await axios.get(URL);
-    const data = response.data; //assigning api data
+    const { data } = response; // assigning api data
 
     // console.log(data);
 
     // const newDepartments = await prisma.department.findMany();
-    // await prisma.department.deleteMany() // Delete all documents in the departments collection
-    await model.createMany({ data: data }); // Insert documents into the collection (from api axios get)
+    // await prisma.department.deleteMany()
+    // Delete all documents in the departments collection
+    // Insert documents into the collection (from api axios get)
+    await model.createMany({ data }); // check this, should it be data:data?
 
     const newResources = await model.findMany();
 
@@ -204,8 +207,8 @@ const seedData = async (req, res, model, tableName, URL) => {
       msg: 'Departments successfully created',
       data: newResources,
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    return catchReturn(res, err);
   }
 };
 
