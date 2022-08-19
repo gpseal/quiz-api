@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import express, { urlencoded, json } from "express";
-
+import helmet from "helmet";
 /**
  * You will create the routes for institutions and departments later
  */
@@ -21,6 +21,7 @@ const CURRENT_VERSION = "v1";
 
 const PORT = process.env.PORT;
 
+app.use(helmet());
 app.use(urlencoded({ extended: false }));
 app.use(json());
 
