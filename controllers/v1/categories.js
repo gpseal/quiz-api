@@ -1,4 +1,4 @@
-import prisma from "../../utils/prisma.js";
+import prisma from '../../utils/prisma.js';
 import {
   getResource,
   deleteResource,
@@ -6,17 +6,17 @@ import {
   createResource,
   updateResource,
   seedData,
-} from "./base.js";
+} from './base.js';
 
-const tableName = "category";
+const tableName = 'category';
 
 const getCategory = (req, res) => {
   getResource(req, res, prisma.category, tableName);
 };
 
 const include = {
-    quizzes: true,
-  };
+  quizzes: true,
+};
 
 const getCategories = (_, res) => {
   getResources(res, prisma.category, tableName, include);
@@ -34,10 +34,11 @@ const deleteCategory = (req, res) => {
   deleteResource(req, res, prisma.category, tableName);
 };
 
-const deptURL = "https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json"
+// prettier-ignore
+const deptURL = 'https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json';
 
 const seedCategories = (req, res) => {
-  seedData(req, res, prisma.category, tableName, deptURL)
+  seedData(req, res, prisma.category, tableName, deptURL);
 };
 
 export {
@@ -46,5 +47,5 @@ export {
   createCategory,
   updateCategory,
   deleteCategory,
-  seedCategories
+  seedCategories,
 };

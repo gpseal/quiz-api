@@ -1,4 +1,5 @@
-import prisma from "../../utils/prisma.js";
+import axios from 'axios';
+import prisma from '../../utils/prisma.js';
 
 // const catchReturn = (response, err) => {
 //     return res.status(500).json({
@@ -30,7 +31,7 @@ const getResource = async (req, res, model, tableName) => {
 
     return res.json({ data: resource }); // displays record
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -54,7 +55,7 @@ const getResources = async (res, model, tableName, include) => {
 
     return res.status(200).json({ data: resources }); // displays all resources
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -62,11 +63,13 @@ const getResources = async (res, model, tableName, include) => {
 const deleteResource = async (req, res, model, tableName) => {
   try {
     const userID = req.user.id;
-    const user = await prisma.user.findUnique({ where: { id: Number(userID) } });
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userID) },
+    });
 
-    if (user.role !== "SUPER_ADMIN_USER") {
+    if (user.role !== 'SUPER_ADMIN_USER') {
       return res.status(403).json({
-        msg: "Not authorized to access this route",
+        msg: 'Not authorized to access this route',
       });
     }
 
@@ -91,7 +94,7 @@ const deleteResource = async (req, res, model, tableName) => {
       msg: `${tableName} with the id: ${id} successfully deleted`,
     });
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -121,15 +124,13 @@ const createResource = async (req, res, model, tableName) => {
     // }
     // console.log(first)
 
-    
-
     await model.create({
       data: req.body,
     });
     /**
-    * creates record with req body plus ID of user creating it
-    * bwhich is added to request in middleware
-    */
+     * creates record with req body plus ID of user creating it
+     * bwhich is added to request in middleware
+     */
 
     const newResources = await model.findMany(); // for displaying all records
 
@@ -138,7 +139,7 @@ const createResource = async (req, res, model, tableName) => {
       data: newResources, // show all records
     });
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
@@ -183,35 +184,33 @@ const updateResource = async (req, res, model, tableName) => {
       data: resource, // displays new record data
     });
   } catch (err) {
-    catchReturn(res, err);
+    return catchReturn(res, err);
   }
 };
 
 const seedData = async (req, res, model, tableName, URL) => {
-
   try {
-    const response = await axios.get(
-      URL
-    );
-    const data = response.data;  //assigning api data
+    const response = await axios.get(URL);
+    const { data } = response; // assigning api data
 
     // console.log(data);
 
     // const newDepartments = await prisma.department.findMany();
-    // await prisma.department.deleteMany() // Delete all documents in the departments collection
-    await model.createMany({data: data}) // Insert documents into the collection (from api axios get)
+    // await prisma.department.deleteMany()
+    // Delete all documents in the departments collection
+    // Insert documents into the collection (from api axios get)
+    await model.createMany({ data }); // check this, should it be data:data?
 
     const newResources = await model.findMany();
 
     return res.status(201).json({
-      msg: "Departments successfully created",
+      msg: 'Departments successfully created',
       data: newResources,
     });
-    
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    return catchReturn(res, err);
   }
-}
+};
 
 export {
   getResource,
@@ -219,5 +218,5 @@ export {
   deleteResource,
   updateResource,
   createResource,
-  seedData
+  seedData,
 };
