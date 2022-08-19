@@ -46,6 +46,7 @@
   },
   "lint-staged": {
     "*.{js,json}": [
+      "npm run prettier:write",
       "npm run lint:check"
     ]
   }
