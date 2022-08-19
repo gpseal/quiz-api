@@ -8,6 +8,8 @@ import {
   deleteCategory,
 } from '../../controllers/v1/categories.js';
 
+// test
+
 const router = Router();
 
 router.route('/').get(getCategories).post(createCategory);
