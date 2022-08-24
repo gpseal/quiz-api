@@ -7,7 +7,7 @@ const catchReturn = (res, err) => {
   });
 };
 
-// single resource
+// Single resource
 const getResource = async (req, res, model, tableName) => {
   try {
     const { id } = req.params; // defines record to be displayed from URL params
