@@ -12,15 +12,22 @@ datasource db {
 }
 
 model Category {
-  id            Int         @id @default(autoincrement())
-  categoryName  String
-  quizzes       Quiz[]
+  id           Int    @id @default(autoincrement())
+  name String
+  quizzes      Quiz[]
 }
 
 model Quiz {
-  id            Int         @id @default(autoincrement())
-  quizName      String
-  category      Category    @relation(fields: [categoryid], references: [id])
-  categoryid    Int
-  questions     Json?
+  id         Int         @id @default(autoincrement())
+  quizName   String
+  category   Category    @relation(fields: [categoryid], references: [id])
+  categoryid Int
+  questions  Questions[]
+}
+
+model Questions {
+  id        Int   @id @default(autoincrement())
+  quiz      Quiz  @relation(fields: [quizid], references: [id])
+  quizid    Int
+  questions Json?
 }

@@ -6,42 +6,25 @@ import {
   deleteResource,
   getResources,
   updateResource,
+  createResource,
 } from './base.js';
 
 const tableName = 'quiz';
 
+const include = {
+  questions: true,
+};
+
 const getQuiz = (req, res) => {
-  getResource(req, res, prisma.quiz, tableName);
+  getResource(req, res, prisma.quiz, tableName, include);
 };
 
 const getQuizzes = (_, res) => {
-  getResources(res, prisma.quiz, tableName);
+  getResources(res, prisma.quiz, tableName, include);
 };
 
-const createQuiz = async (req, res) => {
-  try {
-    const response = await axios.get(
-      `https://opentdb.com/api.php?amount=10&category=18&difficulty=${req.body.difficulty}&type=${req.body.type}`,
-    );
-    const questions = response.data.results; // assigning api data
-
-    const { quizName, categoryid } = req.body;
-
-    await prisma.quiz.create({
-      data: { quizName, categoryid, questions },
-    });
-
-    const newQuizzes = await prisma.quiz.findMany();
-
-    return res.status(201).json({
-      msg: 'Quiz successfully created',
-      data: newQuizzes,
-    });
-  } catch (err) {
-    return res.status(500).json({
-      msg: err.message,
-    });
-  }
+const createQuiz = (req, res) => {
+  createResource(req, res, prisma.quiz, tableName);
 };
 
 const updateQuiz = (req, res) => {
