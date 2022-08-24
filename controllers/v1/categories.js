@@ -1,11 +1,12 @@
+import axios from 'axios';
 import prisma from '../../utils/prisma.js';
+
 import {
   getResource,
   deleteResource,
   getResources,
   createResource,
   updateResource,
-  seedData,
 } from './base.js';
 
 const tableName = 'category';
@@ -34,11 +35,24 @@ const deleteCategory = (req, res) => {
   deleteResource(req, res, prisma.category, tableName);
 };
 
-// prettier-ignore
-const deptURL = 'https://gist.githubusercontent.com/gpseal/c93ae295594b4a095935bef266eab86f/raw/71e4d284cfcbb4895bc2ab29019030961db95b2f/departments.json';
+const seedCategories = async (req, res) => {
+  try {
+    const response = await axios.get('https://opentdb.com/api_category.php');
+    const data = response.data.trivia_categories; // assigning api data
 
-const seedCategories = (req, res) => {
-  seedData(req, res, prisma.category, tableName, deptURL);
+    await prisma.category.createMany({ data }); // check this, should it be data:data?
+
+    const newResources = await prisma.category.findMany();
+
+    return res.status(201).json({
+      msg: `Categories successfully created`,
+      data: newResources,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      msg: err.message,
+    });
+  }
 };
 
 export {

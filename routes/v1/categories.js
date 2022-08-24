@@ -6,6 +6,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  seedCategories,
 } from '../../controllers/v1/categories.js';
 
 const router = Router();
@@ -16,5 +17,6 @@ router
   .get(getCategory)
   .put(updateCategory)
   .delete(deleteCategory);
+router.route('/seed').post(seedCategories);
 
 export default router;
