@@ -1,12 +1,6 @@
 import axios from 'axios';
 import prisma from '../../utils/prisma.js';
 
-// const catchReturn = (response, err) => {
-//     return res.status(500).json({
-//       msg: err.message,
-//     });
-// }
-
 const catchReturn = (res, err) => {
   res.status(500).json({
     msg: err.message,
