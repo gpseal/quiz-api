@@ -8,6 +8,11 @@ import helmet from 'helmet';
 import categories from './routes/v1/categories.js';
 import quizzes from './routes/v1/quizzes.js';
 import questions from './routes/v1/questions.js';
+import ratings from './routes/v1/ratings.js';
+import scores from './routes/v1/scores.js';
+
+import auth from './routes/v1/auth.js';
+import authRoute from './middleware/authRoute.js';
 
 dotenv.config();
 
@@ -23,12 +28,19 @@ const CURRENT_VERSION = 'v1';
 const { PORT } = process.env;
 
 app.use(helmet());
-app.use(urlencoded({ extended: false }));
+app.use(
+  urlencoded({
+    extended: false,
+  }),
+);
 app.use(json());
 
-app.use(`/${BASE_URL}/${CURRENT_VERSION}/categories`, categories);
-app.use(`/${BASE_URL}/${CURRENT_VERSION}/quizzes`, quizzes);
-app.use(`/${BASE_URL}/${CURRENT_VERSION}/questions`, questions);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/auth`, auth);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/categories`, authRoute, categories);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/quizzes`, authRoute, quizzes);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/questions`, authRoute, questions);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/ratings`, authRoute, ratings);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/scores`, authRoute, scores);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

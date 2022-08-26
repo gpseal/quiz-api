@@ -9,6 +9,13 @@
     "sourceType": "module"
   },
   "rules": {
+    "object-curly-newline": [
+      "error",
+      {
+        "ObjectExpression": "always",
+        "ObjectPattern": { "multiline": false }
+      }
+    ],
     "quotes": 0,
     "no-multiple-empty-lines": 1,
     "no-multi-spaces": 1,

@@ -24,7 +24,7 @@ model User {
   email      String       @unique
   username   String       @unique
   password   String   
-  picture    String   
+  picture    String       
   role       Role         @default(BASIC_USER)
   createdAt  DateTime     @default(now())
   quizzes    Quiz[]   

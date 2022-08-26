@@ -40,7 +40,9 @@ const seedCategories = async (req, res) => {
     const response = await axios.get('https://opentdb.com/api_category.php');
     const data = response.data.trivia_categories; // assigning api data
 
-    await prisma.category.createMany({ data }); // check this, should it be data:data?
+    await prisma.category.createMany({
+      data,
+    }); // check this, should it be data:data?
 
     const newResources = await prisma.category.findMany();
 

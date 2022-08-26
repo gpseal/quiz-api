@@ -13,7 +13,9 @@ const getResource = async (req, res, model, tableName) => {
     const { id } = req.params; // defines record to be displayed from URL params
 
     const resource = await model.findUnique({
-      where: { id: Number(id) }, // finds record using ID from URL params
+      where: {
+        id: Number(id),
+      }, // finds record using ID from URL params
     });
 
     // checks that record exists
@@ -23,7 +25,9 @@ const getResource = async (req, res, model, tableName) => {
       });
     }
 
-    return res.json({ data: resource }); // displays record
+    return res.json({
+      data: resource,
+    }); // displays record
   } catch (err) {
     return catchReturn(res, err);
   }
@@ -36,9 +40,12 @@ const getResources = async (res, model, tableName, include) => {
      * The findMany function returns all records
      */
     // checks to see if 'include' exists as an argument, adds to findMany if it does
+    // prettier-ignore
     const resources = !include
-      ? await model.findMany({})
-      : await model.findMany({ include });
+      ? await model.findMany()
+      : await model.findMany({
+        include,
+      });
 
     // if array is empty
     if (resources.length === 0) {
@@ -47,7 +54,9 @@ const getResources = async (res, model, tableName, include) => {
       });
     }
 
-    return res.status(200).json({ data: resources }); // displays all resources
+    return res.status(200).json({
+      data: resources,
+    }); // displays all resources
   } catch (err) {
     return catchReturn(res, err);
   }
@@ -58,7 +67,9 @@ const deleteResource = async (req, res, model, tableName) => {
   try {
     const userID = req.user.id;
     const user = await prisma.user.findUnique({
-      where: { id: Number(userID) },
+      where: {
+        id: Number(userID),
+      },
     });
 
     if (user.role !== 'SUPER_ADMIN_USER') {
@@ -70,7 +81,9 @@ const deleteResource = async (req, res, model, tableName) => {
     const { id } = req.params; // defines record to be delete with URL params
 
     const resource = await model.findUnique({
-      where: { id: Number(id) }, // finds record using ID from URL params
+      where: {
+        id: Number(id),
+      }, // finds record using ID from URL params
     });
 
     // check record exists
@@ -81,7 +94,9 @@ const deleteResource = async (req, res, model, tableName) => {
     }
 
     await model.delete({
-      where: { id: Number(id) }, // deletes record that matches ID
+      where: {
+        id: Number(id),
+      }, // deletes record that matches ID
     });
 
     return res.json({
@@ -99,9 +114,15 @@ const createResource = async (req, res, model, tableName) => {
      * The create function creates a new record using the required fields,
      * i.e., name, region and country
      */
-    // const { id } = req.user;
 
-    // const user = await prisma.user.findUnique({ where: { id: Number(id) } });
+    // Get the authenticated user's id from the Request's user property
+    const { id } = req.user;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
 
     /**
      * Now you will know which authenticated user created which institution
@@ -119,11 +140,14 @@ const createResource = async (req, res, model, tableName) => {
     // console.log(first)
 
     await model.create({
-      data: req.body,
+      data: {
+        ...req.body,
+        userId: id,
+      },
     });
     /**
      * creates record with req body plus ID of user creating it
-     * bwhich is added to request in middleware
+     * which is added to request in middleware
      */
 
     const newResources = await model.findMany(); // for displaying all records
@@ -154,7 +178,9 @@ const updateResource = async (req, res, model, tableName) => {
 
     let resource = await model.findUnique({
       // finds record using ID from URL params
-      where: { id: Number(id) },
+      where: {
+        id: Number(id),
+      },
     });
 
     // check record exists
@@ -169,7 +195,9 @@ const updateResource = async (req, res, model, tableName) => {
      * id or unique identifier
      */
     resource = await model.update({
-      where: { id: Number(id) },
+      where: {
+        id: Number(id),
+      },
       data: req.body, // replaces existing data with new payload data
     });
 
@@ -193,7 +221,9 @@ const seedData = async (req, res, model, tableName, URL) => {
     // await prisma.department.deleteMany()
     // Delete all documents in the departments collection
     // Insert documents into the collection (from api axios get)
-    await model.createMany({ data }); // check this, should it be data:data?
+    await model.createMany({
+      data,
+    }); // check this, should it be data:data?
 
     const newResources = await model.findMany();
 
@@ -206,11 +236,4 @@ const seedData = async (req, res, model, tableName, URL) => {
   }
 };
 
-export {
-  getResource,
-  getResources,
-  deleteResource,
-  updateResource,
-  createResource,
-  seedData,
-};
+export { getResource, getResources, deleteResource, updateResource, createResource, seedData };

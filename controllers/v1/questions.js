@@ -1,12 +1,7 @@
 import axios from 'axios';
 import prisma from '../../utils/prisma.js';
 
-import {
-  getResource,
-  deleteResource,
-  getResources,
-  updateResource,
-} from './base.js';
+import { getResource, deleteResource, getResources, updateResource } from './base.js';
 
 const tableName = 'quiz';
 
@@ -37,7 +32,10 @@ const createQuestionSet = async (req, res) => {
     const { quizid } = req.body;
 
     await prisma.questions.create({
-      data: { quizid, questions },
+      data: {
+        quizid,
+        questions,
+      },
     });
 
     const newQuestions = await prisma.questions.findMany();
