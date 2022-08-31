@@ -6,7 +6,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+const nameChecks = (fieldName, name, minLength, MaxLength, res) => {
+  if (name.length < minLength || name.length > MaxLength || name.match(/^[A-Za-z]+$/) === null) {
+    return res.status(400).json({
+      msg: `${fieldName} length must be more than 2 and less than 50 characters, and contain alpha characters only`,
+    });
+  }
+}
+
 const register = async (req, res) => {
+  console.log(req.body);
   try {
     const { first_name, last_name, email, username, password, picture, role } = req.body;
 
@@ -21,6 +30,16 @@ const register = async (req, res) => {
         msg: 'User already exists',
       });
     }
+
+    //nameChecks("first_name", first_name, 2, 50, res)
+    // nameChecks("last_name", last_name, 2, 50, res)
+    if (first_name.length < 2 || first_name.length > 50 || first_name.match(/^[A-Za-z]+$/) === null) {
+      return res.status(400).json({
+        msg: 'first_name field length must be more than 2 and less than 50 characters',
+      });
+    }
+
+    console.log('first_name', first_name);
 
     /**
      * A salt is random bits added to a password before it is hashed. Salts
