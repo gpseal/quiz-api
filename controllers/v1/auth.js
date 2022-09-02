@@ -6,40 +6,123 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const nameChecks = (fieldName, name, minLength, MaxLength, res) => {
-  if (name.length < minLength || name.length > MaxLength || name.match(/^[A-Za-z]+$/) === null) {
+const lengthChecks = (fieldName, name, minLength, MaxLength, res) => {
+  if (name.length < minLength || name.length > MaxLength) {
     return res.status(400).json({
-      msg: `${fieldName} length must be more than 2 and less than 50 characters, and contain alpha characters only`,
+      msg: `${fieldName} length must be more than ${minLength} and less than ${MaxLength} characters,`,
     });
   }
-}
+};
+
+const checkCharacterType = (fieldName, name, type, mssge, res) => {
+  if (name.match(type) === null) {
+    return res.status(400).json({
+      msg: `${fieldName} must contain ${mssge}`,
+    });
+  }
+};
 
 const register = async (req, res) => {
-  console.log(req.body);
   try {
-    const { first_name, last_name, email, username, password, picture, role } = req.body;
+    // prettier-ignore
+    const { first_name,
+      last_name,
+      email,
+      username,
+      password,
+      picture,
+      role,
+      confirmPassword } = req.body;
 
-    let user = await prisma.user.findUnique({
+    // Check for unique email and username
+    let user = await prisma.user.findFirst({
       where: {
-        email,
+        OR: [
+          {
+            username,
+          },
+          {
+            email,
+          },
+        ],
       },
     });
 
+    // Testing which item was not unique
     if (user) {
+      if (username === user.username) {
+        return res.status(409).json({
+          msg: 'Username already exists',
+        });
+      }
       return res.status(409).json({
-        msg: 'User already exists',
+        msg: 'email already exists',
       });
     }
 
-    //nameChecks("first_name", first_name, 2, 50, res)
-    // nameChecks("last_name", last_name, 2, 50, res)
-    if (first_name.length < 2 || first_name.length > 50 || first_name.match(/^[A-Za-z]+$/) === null) {
+    const passwordFormat = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
+    const emailFormat = /^([A-Za-z0-9_.-]+)@([\da-zA-Z.-]+)\.([a-z.]{2,5})$/;
+
+    // Checking correct lengths of inputs
+    if (lengthChecks('first name', first_name, 2, 50, res)) return;
+    if (checkCharacterType('first name', first_name, /^[A-Za-z]+$/, 'alpha characters only', res)) {
+      return;
+    }
+
+    if (lengthChecks('last name', last_name, 2, 50, res)) return;
+    if (checkCharacterType('last name', first_name, /^[A-Za-z]+$/, 'alpha characters only', res)) {
+      return;
+    }
+
+    if (
+      checkCharacterType(
+        'email',
+        email,
+        emailFormat,
+        'an @ special character & a second-level domain',
+        res,
+      )
+    ) {
+      return;
+    }
+
+    if (lengthChecks('username', username, 5, 10, res)) return;
+    if (
+      checkCharacterType(
+        'username',
+        username,
+        /^[0-9a-zA-Z]+$/,
+        'alphanumeric characters only',
+        res,
+      )
+    ) {
+      return;
+    }
+
+    if (lengthChecks('password', password, 5, 10, res)) return;
+    if (
+      checkCharacterType(
+        'password',
+        password,
+        passwordFormat,
+        '1 numeric character & 1 special character',
+        res,
+      )
+    ) {
+      return;
+    }
+
+    if (confirmPassword !== password) {
       return res.status(400).json({
-        msg: 'first_name field length must be more than 2 and less than 50 characters',
+        msg: 'passwords do not match',
       });
     }
 
-    console.log('first_name', first_name);
+    if (username !== email.split('@')[0]) {
+      return res.status(400).json({
+        msg: 'email prefix must match username ',
+      });
+    }
 
     /**
      * A salt is random bits added to a password before it is hashed. Salts
@@ -130,7 +213,7 @@ const login = async (req, res) => {
     );
 
     return res.status(200).json({
-      msg: 'User successfully logged in',
+      msg: `${user.username} successfully logged in`,
       token,
     });
   } catch (err) {
