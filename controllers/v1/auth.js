@@ -30,7 +30,6 @@ const register = async (req, res) => {
       email,
       username,
       password,
-      picture,
       role,
       confirmPassword } = req.body;
 
@@ -123,6 +122,8 @@ const register = async (req, res) => {
         msg: 'email prefix must match username ',
       });
     }
+
+    const picture = `https://avatars.dicebear.com/api/avataaars/${username}.svg`;
 
     /**
      * A salt is random bits added to a password before it is hashed. Salts

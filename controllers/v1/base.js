@@ -236,4 +236,13 @@ const seedData = async (req, res, model, tableName, URL) => {
   }
 };
 
-export { getResource, getResources, deleteResource, updateResource, createResource, seedData };
+// eslint-disable-next-line max-len
+export {
+  getResource,
+  getResources,
+  deleteResource,
+  updateResource,
+  createResource,
+  seedData,
+  catchReturn,
+};

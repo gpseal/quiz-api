@@ -18,42 +18,42 @@ enum Role {
 }
 
 model User {
-  id         Int          @id @default(autoincrement())
-  first_name String   
-  last_name  String   
-  email      String       @unique
-  username   String       @unique
-  password   String   
-  picture    String       
-  role       Role         @default(BASIC_USER)
-  createdAt  DateTime     @default(now())
-  quizzes    Quiz[]   
-  Rating     Rating[]   
-  Score      Score[]    
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  email      String   @unique
+  username   String   @unique
+  password   String
+  picture    String
+  role       Role     @default(BASIC_USER)
+  createdAt  DateTime @default(now())
+  quizzes    Quiz[]
+  Rating     Rating[]
+  Score      Score[]
 }
 
 model Rating {
-  id          Int         @id @default(autoincrement())
-  user        User?       @relation(fields: [userId], references: [id])
-  userId      Int?      
-  rating      Int     
-  Quiz        Quiz?       @relation(fields: [quizId], references: [id])
-  quizId      Int?
+  id     Int   @id @default(autoincrement())
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+  rating Int
+  Quiz   Quiz? @relation(fields: [quizId], references: [id])
+  quizId Int?
 }
 
 model Score {
-  id          Int         @id @default(autoincrement())
-  user        User?       @relation(fields: [userId], references: [id])
-  userId      Int?      
-  quiz        Quiz?       @relation(fields: [quizID], references: [id])
-  quizID      Int?    
-  score       Int   
+  id     Int   @id @default(autoincrement())
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?
+  quiz   Quiz? @relation(fields: [quizID], references: [id])
+  quizID Int?
+  score  Int
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
-  name        String  
-  quizzes     Quiz[]  
+  id      Int    @id @default(autoincrement())
+  name    String
+  quizzes Quiz[]
 }
 
 enum Type {
@@ -68,24 +68,24 @@ enum Difficulty {
 }
 
 model Quiz {
-  id                  Int         @id @default(autoincrement())
-  name                String
-  category            Category    @relation(fields: [categoryid], references: [id])
-  categoryid          Int
-  type                Type        @default(multiple)
-  difficulty          Difficulty  @default(medium)
-  user                User?       @relation(fields: [userId], references: [id])
-  userId              Int?
-  scores              Score[]
-  rating              Rating[]
-  questions           Questions[]
-  start_date          DateTime
-  end_date            DateTime
+  id         Int         @id @default(autoincrement())
+  name       String
+  category   Category    @relation(fields: [categoryid], references: [id])
+  categoryid Int
+  type       Type        @default(multiple)
+  difficulty Difficulty  @default(medium)
+  user       User?       @relation(fields: [userId], references: [id])
+  userId     Int?
+  scores     Score[]
+  rating     Rating[]
+  questions  Questions[]
+  start_date DateTime   @default(now())
+  end_date   DateTime   @default(now())
 }
 
 model Questions {
-  id                  Int         @id @default(autoincrement())
-  quiz                Quiz        @relation(fields: [quizid], references: [id])
-  quizid              Int
-  questions           Json?
+  id        Int   @id @default(autoincrement())
+  quiz      Quiz  @relation(fields: [quizid], references: [id])
+  quizid    Int
+  questions Json?
 }
