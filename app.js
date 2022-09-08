@@ -10,6 +10,7 @@ import quizzes from './routes/v1/quizzes.js';
 import questions from './routes/v1/questions.js';
 import ratings from './routes/v1/ratings.js';
 import scores from './routes/v1/scores.js';
+import takeQuiz from './routes/v1/takeQuiz.js';
 
 import auth from './routes/v1/auth.js';
 import authRoute from './middleware/authRoute.js';
@@ -41,6 +42,7 @@ app.use(`/${BASE_URL}/${CURRENT_VERSION}/quizzes`, authRoute, quizzes);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/questions`, authRoute, questions);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/ratings`, authRoute, ratings);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/scores`, authRoute, scores);
+app.use(`/${BASE_URL}/${CURRENT_VERSION}/takeQuiz`, authRoute, takeQuiz);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
