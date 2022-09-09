@@ -42,7 +42,7 @@ app.use(`/${BASE_URL}/${CURRENT_VERSION}/quizzes`, authRoute, quizzes);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/questions`, authRoute, questions);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/ratings`, authRoute, ratings);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/scores`, authRoute, scores);
-app.use(`/${BASE_URL}/${CURRENT_VERSION}/takeQuiz`, authRoute, takeQuiz);
+// app.use(`/${BASE_URL}/${CURRENT_VERSION}/takeQuiz`, authRoute, takeQuiz);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

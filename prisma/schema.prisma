@@ -79,8 +79,8 @@ model Quiz {
   scores     Score[]
   rating     Rating[]
   questions  Questions[]
-  start_date DateTime   @default(now())
-  end_date   DateTime   @default(now())
+  start_date DateTime   @default(now()) @db.Date
+  end_date   DateTime   @default(now()) @db.Date
 }
 
 model Questions {

@@ -19,7 +19,7 @@ const getRating = (req, res) => {
 };
 
 const getRatings = (_, res) => {
-  getResources(res, prisma.rating, tableName, include);
+  getResources(res, prisma.rating, tableName);
 };
 
 const createRating = (req, res) => {
