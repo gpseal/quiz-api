@@ -77,10 +77,11 @@ model Quiz {
   user       User?       @relation(fields: [userId], references: [id])
   userId     Int?
   scores     Score[]
+  average    Decimal?    @db.Decimal(10, 2)
   rating     Rating[]
   questions  Questions[]
-  start_date DateTime   @default(now()) @db.Date
-  end_date   DateTime   @default(now()) @db.Date
+  start_date DateTime    @default(now()) @db.Date
+  end_date   DateTime    @default(now()) @db.Date
 }
 
 model Questions {

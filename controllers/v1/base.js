@@ -8,15 +8,28 @@ const catchReturn = (res, err) => {
 };
 
 // single resource
-const getResource = async (req, res, model, tableName) => {
+const getResource = async (req, res, model, tableName, include) => {
   try {
     const { id } = req.params; // defines record to be displayed from URL params
 
-    const resource = await model.findUnique({
-      where: {
-        id: Number(id),
-      }, // finds record using ID from URL params
-    });
+    const resource = !include
+      ? await model.findUnique({
+          where: {
+            id: Number(id),
+          }, // finds record using ID from URL params
+        })
+      : await model.findUnique({
+          where: {
+            id: Number(id),
+          },
+          include,
+        });
+
+    // const resource = await model.findUnique({
+    //   where: {
+    //     id: Number(id),
+    //   }, // finds record using ID from URL params
+    // });
 
     // checks that record exists
     if (!resource) {

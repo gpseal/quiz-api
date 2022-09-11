@@ -17,6 +17,8 @@ const tableName = 'quiz';
 
 const include = {
   questions: true,
+  scores: true,
+  rating: true,
 };
 
 const getQuiz = (req, res) => {
@@ -85,15 +87,6 @@ const createQuiz = async (req, res) => {
       data: {
         quizid,
         questions,
-      },
-    });
-
-    // creating quiz rating table
-    await prisma.rating.create({
-      data: {
-        quizId: quizid,
-        userId: id,
-        rating: 0,
       },
     });
 
@@ -206,13 +199,14 @@ const submitQuiz = async (req, res) => {
       // finds record using ID from URL params
     });
 
+    //  calculate score by comparing submitted answers to correct answers
     answers.forEach((answer, index) => {
       if (answer === questions.questions[0].questions[index].correct_answer) {
         score += 1;
       }
     });
 
-    // creating score rating table
+    // creating score table
     await prisma.score.create({
       data: {
         quizID: Number(id),
@@ -221,27 +215,33 @@ const submitQuiz = async (req, res) => {
       },
     });
 
-    const scores = await prisma.score.findMany({
+    //  calculating total average of quiz
+    const average = await prisma.score.aggregate({
+      _avg: {
+        score: true,
+      },
       where: {
         quizID: Number(id),
       },
-      // finds record using ID from URL params
     });
 
-    // calculate average score of quiz
-    let sum = 0;
-
-    scores.forEach((quizScore) => {
-      sum += quizScore.score;
+    // adding newly calculated average to quiz table
+    await prisma.quiz.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        // eslint-disable-next-line no-underscore-dangle
+        average: average._avg.score,
+      },
     });
-
-    const avg = (sum / scores.length).toFixed(2);
 
     return res.status(200).json({
       msg: `${userDetails.username} has successfully participated in ${questions.name}`,
       Score: score,
-      Quiz_Average: avg,
-    }); // displays record
+      // eslint-disable-next-line no-underscore-dangle
+      Quiz_Average: average._avg.score.toFixed(2),
+    });
   } catch (err) {
     return catchReturn(res, err);
   }
