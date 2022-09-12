@@ -2,14 +2,7 @@ import axios from 'axios';
 // import { response } from 'express';
 import prisma from '../../utils/prisma.js';
 
-import {
-  getResource,
-  deleteResource,
-  getResources,
-  updateResource,
-  createResource,
-  catchReturn,
-} from './base.js';
+import { getResource, deleteResource, getResources, updateResource, catchReturn } from './base.js';
 
 const dateFormat = 'T00:00:00.000Z';
 
@@ -116,7 +109,9 @@ const deleteQuiz = (req, res) => {
 // allows users to participate in quizzes within quiz dates
 const takeQuiz = async (req, res) => {
   try {
-    const { quizID: id } = req.body;
+    // const { quizID: id } = req.body;
+
+    const { id } = req.params;
 
     const quiz = await prisma.quiz.findUnique({
       where: {
@@ -139,10 +134,12 @@ const takeQuiz = async (req, res) => {
       });
     }
 
+    //  fomatting quiz to display only questions & shuffled answers
     const formattedQuestions = [];
 
     quiz.questions[0].questions.forEach((question, index) => {
       const quest = question.question;
+      //  creating array to shuffle and display all possible answers
       const answers = question.incorrect_answers;
       answers.push(question.correct_answer);
       const shuffledQuestions = answers.sort((a, b) => 0.5 - Math.random());
@@ -154,7 +151,7 @@ const takeQuiz = async (req, res) => {
     });
 
     return res.json({
-      data: formattedQuestions,
+      questions: formattedQuestions,
     }); // displays record
   } catch (err) {
     return catchReturn(res, err);
@@ -165,7 +162,7 @@ const submitQuiz = async (req, res) => {
   try {
     let score = 0;
     const { answers } = req.body; // gets answers from user post
-    const { quizID: id } = req.body; // defines record to be displayed from URL params
+    const { id } = req.params; // defines record to be displayed from URL params
 
     if (answers.length !== 10) {
       return res.status(200).json({

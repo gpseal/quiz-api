@@ -13,8 +13,8 @@ import {
 const router = Router();
 
 router.route('/').get(getQuizzes).post(createQuiz);
-router.route('/:id').get(getQuiz).put(updateQuiz).delete(deleteQuiz);
-router.route('/take').post(takeQuiz);
-router.route('/submit').post(submitQuiz);
+router.route('/:id').get(takeQuiz).put(updateQuiz).delete(deleteQuiz);
+router.route('/:id/participate').post(submitQuiz);
+// router.route('/submit').post(submitQuiz);
 
 export default router;
