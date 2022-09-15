@@ -19,7 +19,7 @@ const getScore = (req, res) => {
 };
 
 const getScores = (_, res) => {
-  getResources(res, prisma.score, tableName, include);
+  getResources(res, prisma.score, tableName);
 };
 
 const createScore = (req, res) => {
