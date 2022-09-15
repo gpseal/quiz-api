@@ -1,26 +1,10 @@
 /* eslint-disable camelcase */
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
 import { PrismaClient } from '@prisma/client';
+import { lengthChecks, checkCharacterType } from '../../utils/validation.js';
 
 const prisma = new PrismaClient();
-
-const lengthChecks = (fieldName, name, minLength, MaxLength, res) => {
-  if (name.length < minLength || name.length > MaxLength) {
-    return res.status(400).json({
-      msg: `${fieldName} length must be more than ${minLength} and less than ${MaxLength} characters,`,
-    });
-  }
-};
-
-const checkCharacterType = (fieldName, name, type, mssge, res) => {
-  if (name.match(type) === null) {
-    return res.status(400).json({
-      msg: `${fieldName} must contain ${mssge}`,
-    });
-  }
-};
 
 const register = async (req, res) => {
   try {

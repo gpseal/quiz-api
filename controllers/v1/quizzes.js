@@ -1,10 +1,8 @@
 import axios from 'axios';
 // import { response } from 'express';
 import prisma from '../../utils/prisma.js';
-
+import { lengthChecks, checkCharacterType } from '../../utils/validation.js';
 import { getResource, deleteResource, getResources, updateResource, catchReturn } from './base.js';
-
-const dateFormat = 'T00:00:00.000Z';
 
 const tableName = 'quiz';
 
@@ -33,23 +31,40 @@ const createQuiz = async (req, res) => {
       },
     });
 
-    // formatting date to prisma format
+    //  preparing dates for checking
+    const startDate = new Date(req.body.start_date);
+    const endDate = new Date(req.body.end_date);
+    const currentDate = new Date();
+    const dateAddFive = new Date();
+    dateAddFive.setDate(startDate.getDate() + 5);
 
-    const startDate = req.body.start_date + dateFormat;
-    const endDate = req.body.end_date + dateFormat;
+    // checking that start date is valid
+    if (startDate < currentDate) {
+      return res.status(400).json({
+        msg: `start date must be greater than today's date `,
+      });
+    }
 
-    console.log('startDate', startDate);
-    console.log('endDate', endDate);
-    console.log('Date.now()', Date.now());
+    // checking that end date is valid
+    if (endDate > dateAddFive || endDate < startDate) {
+      return res.status(400).json({
+        msg: `End date must be greater than the start date & no longer than five days`,
+      });
+    }
 
-    console.log(Date.now());
+    if (lengthChecks('quiz name', req.body.name, 5, 30, res)) return;
+    if (
+      checkCharacterType('quiz name', req.body.name, /^[A-Za-z]+$/, 'alpha characters only', res)
+    ) {
+      return;
+    }
 
     //  create quiz using req data
     await prisma.quiz.create({
       data: {
         ...req.body,
-        start_date: req.body.start_date + dateFormat,
-        end_date: req.body.end_date + dateFormat,
+        start_date: startDate,
+        end_date: endDate,
         userId: id,
       },
     });
@@ -130,7 +145,7 @@ const takeQuiz = async (req, res) => {
 
     if (Date.now() > quiz.end_date) {
       return res.status(200).json({
-        msg: `Quiz is has already been completed`,
+        msg: `Quiz has already been completed`,
       });
     }
 
