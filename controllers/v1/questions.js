@@ -3,7 +3,7 @@ import prisma from '../../utils/prisma.js';
 
 import { getResource, deleteResource, getResources, updateResource } from './base.js';
 
-const tableName = 'quiz';
+const tableName = 'question';
 
 const include = {
   questions: true,

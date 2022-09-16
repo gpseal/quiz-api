@@ -2,6 +2,7 @@ import axios from 'axios';
 // import { response } from 'express';
 import prisma from '../../utils/prisma.js';
 import { lengthChecks, checkCharacterType } from '../../utils/validation.js';
+import authCheck from '../../utils/authorization.js';
 import { getResource, deleteResource, getResources, updateResource, catchReturn } from './base.js';
 
 const tableName = 'quiz';
@@ -30,6 +31,8 @@ const createQuiz = async (req, res) => {
         id: Number(id),
       },
     });
+
+    if (authCheck(user, res, 'ADMIN_USER', 'SUPER_ADMIN_USER')) return;
 
     //  preparing dates for checking
     const startDate = new Date(req.body.start_date);
@@ -118,15 +121,23 @@ const updateQuiz = (req, res) => {
 };
 
 const deleteQuiz = (req, res) => {
-  deleteResource(req, res, prisma.quiz, tableName);
+  deleteResource(req, res, prisma.quiz, tableName, authCheck);
 };
 
 // allows users to participate in quizzes within quiz dates
 const takeQuiz = async (req, res) => {
   try {
-    // const { quizID: id } = req.body;
-
     const { id } = req.params;
+    const { id: userID } = req.user;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(userID),
+      },
+    });
+
+    // checking user authentication
+    if (authCheck(user, res, 'BASIC_USER')) return;
 
     const quiz = await prisma.quiz.findUnique({
       where: {
@@ -152,7 +163,7 @@ const takeQuiz = async (req, res) => {
     //  fomatting quiz to display only questions & shuffled answers
     const formattedQuestions = [];
 
-    quiz.questions[0].questions.forEach((question, index) => {
+    quiz.questions[0].questions.forEach((question) => {
       const quest = question.question;
       //  creating array to shuffle and display all possible answers
       const answers = question.incorrect_answers;

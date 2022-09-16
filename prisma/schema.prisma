@@ -34,18 +34,18 @@ model User {
 
 model Rating {
   id     Int   @id @default(autoincrement())
-  user   User? @relation(fields: [userId], references: [id])
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int?
   rating Int
-  Quiz   Quiz? @relation(fields: [quizId], references: [id])
+  Quiz   Quiz? @relation(fields: [quizId], references: [id], onDelete: Cascade)
   quizId Int?
 }
 
 model Score {
   id     Int   @id @default(autoincrement())
-  user   User? @relation(fields: [userId], references: [id])
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int?
-  quiz   Quiz? @relation(fields: [quizID], references: [id])
+  quiz   Quiz? @relation(fields: [quizID], references: [id], onDelete: Cascade)
   quizID Int?
   score  Int
 }
@@ -70,11 +70,11 @@ enum Difficulty {
 model Quiz {
   id         Int         @id @default(autoincrement())
   name       String
-  category   Category    @relation(fields: [categoryid], references: [id])
+  category   Category    @relation(fields: [categoryid], references: [id], onDelete: Cascade)
   categoryid Int
   type       Type        @default(multiple)
   difficulty Difficulty  @default(medium)
-  user       User?       @relation(fields: [userId], references: [id])
+  user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int?
   scores     Score[]
   average    Decimal?    @db.Decimal(10, 2)
@@ -86,7 +86,7 @@ model Quiz {
 
 model Questions {
   id        Int   @id @default(autoincrement())
-  quiz      Quiz  @relation(fields: [quizid], references: [id])
+  quiz      Quiz  @relation(fields: [quizid], references: [id], onDelete: Cascade)
   quizid    Int
   questions Json?
 }

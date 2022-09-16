@@ -76,7 +76,7 @@ const getResources = async (res, model, tableName, include) => {
 };
 
 // delete single resource
-const deleteResource = async (req, res, model, tableName) => {
+const deleteResource = async (req, res, model, tableName, authCheck) => {
   try {
     const userID = req.user.id;
     const user = await prisma.user.findUnique({
@@ -85,10 +85,10 @@ const deleteResource = async (req, res, model, tableName) => {
       },
     });
 
-    if (user.role !== 'SUPER_ADMIN_USER') {
-      return res.status(403).json({
-        msg: 'Not authorized to access this route',
-      });
+    /*  check if authorization function has been given as argument,
+    if so, check if user has proper authorization */
+    if (authCheck) {
+      if (authCheck(user, res, 'SUPER_ADMIN_USER')) return;
     }
 
     const { id } = req.params; // defines record to be delete with URL params
