@@ -121,7 +121,7 @@ const updateQuiz = (req, res) => {
 };
 
 const deleteQuiz = (req, res) => {
-  deleteResource(req, res, prisma.quiz, tableName, authCheck);
+  deleteResource(req, res, prisma.quiz, tableName, authCheck, 'SUPER_ADMIN_USER');
 };
 
 // allows users to participate in quizzes within quiz dates

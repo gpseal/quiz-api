@@ -76,7 +76,7 @@ const getResources = async (res, model, tableName, include) => {
 };
 
 // delete single resource
-const deleteResource = async (req, res, model, tableName, authCheck) => {
+const deleteResource = async (req, res, model, tableName, authCheck, userType) => {
   try {
     const userID = req.user.id;
     const user = await prisma.user.findUnique({
@@ -88,7 +88,7 @@ const deleteResource = async (req, res, model, tableName, authCheck) => {
     /*  check if authorization function has been given as argument,
     if so, check if user has proper authorization */
     if (authCheck) {
-      if (authCheck(user, res, 'SUPER_ADMIN_USER')) return;
+      if (authCheck(user, res, userType)) return;
     }
 
     const { id } = req.params; // defines record to be delete with URL params
@@ -223,16 +223,23 @@ const updateResource = async (req, res, model, tableName) => {
   }
 };
 
-const seedData = async (req, res, model, tableName, URL) => {
+const seedData = async (req, res, model, tableName, URL, authCheck, userType1, userType2) => {
   try {
+    const { id: userID } = req.user;
+    // const userID = req.user.id;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(userID),
+      },
+    });
+
+    if (authCheck) {
+      if (authCheck(user, res, userType1, userType2)) return;
+    }
+
     const response = await axios.get(URL);
     const { data } = response; // assigning api data
 
-    // console.log(data);
-
-    // const newDepartments = await prisma.department.findMany();
-    // await prisma.department.deleteMany()
-    // Delete all documents in the departments collection
     // Insert documents into the collection (from api axios get)
     await model.createMany({
       data,
@@ -241,7 +248,7 @@ const seedData = async (req, res, model, tableName, URL) => {
     const newResources = await model.findMany();
 
     return res.status(201).json({
-      msg: 'Departments successfully created',
+      msg: `${tableName}s successfully created`,
       data: newResources,
     });
   } catch (err) {

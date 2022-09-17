@@ -7,6 +7,7 @@ import {
   getResources,
   createResource,
   updateResource,
+  seedData,
 } from './base.js';
 
 const tableName = 'category';
@@ -35,26 +36,29 @@ const deleteCategory = (req, res) => {
   deleteResource(req, res, prisma.category, tableName);
 };
 
+const URL = 'https://opentdb.com/api_category.php';
+
 const seedCategories = async (req, res) => {
-  try {
-    const response = await axios.get('https://opentdb.com/api_category.php');
-    const data = response.data.trivia_categories; // assigning api data
+  seedData(req, res, prisma.category, tableName, URL);
+  // try {
+  //   const response = await axios.get('https://opentdb.com/api_category.php');
+  //   const data = response.data.trivia_categories; // assigning api data
 
-    await prisma.category.createMany({
-      data,
-    }); // check this, should it be data:data?
+  //   await prisma.category.createMany({
+  //     data,
+  //   }); // check this, should it be data:data?
 
-    const newResources = await prisma.category.findMany();
+  //   const newResources = await prisma.category.findMany();
 
-    return res.status(201).json({
-      msg: `Categories successfully created`,
-      data: newResources,
-    });
-  } catch (err) {
-    return res.status(500).json({
-      msg: err.message,
-    });
-  }
+  //   return res.status(201).json({
+  //     msg: `Categories successfully created`,
+  //     data: newResources,
+  //   });
+  // } catch (err) {
+  //   return res.status(500).json({
+  //     msg: err.message,
+  //   });
+  // }
 };
 
 export {

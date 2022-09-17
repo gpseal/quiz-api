@@ -1,8 +1,19 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
+import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { lengthChecks, checkCharacterType } from '../../utils/validation.js';
+import { lengthChecks, checkCharacterType, checkCrudentials } from '../../utils/validation.js';
+// import {
+//   seedData,
+// } from './base.js';
+
+const catchReturn = (res, err) => {
+  res.status(500).json({
+    msg: err.message,
+  });
+};
 
 const prisma = new PrismaClient();
 
@@ -17,6 +28,8 @@ const register = async (req, res) => {
       role,
       confirmPassword } = req.body;
 
+    if (checkCrudentials(req.body, res)) return;
+    // console.log(first_name);
     // Check for unique email and username
     let user = await prisma.user.findFirst({
       where: {
@@ -42,70 +55,73 @@ const register = async (req, res) => {
         msg: 'email already exists',
       });
     }
+    console.log('user here');
 
-    const passwordFormat = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
-    const emailFormat = /^([A-Za-z0-9_.-]+)@([\da-zA-Z.-]+)\.([a-z.]{2,5})$/;
+    // const passwordFormat = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
+    // const emailFormat = /^([A-Za-z0-9_.-]+)@([\da-zA-Z.-]+)\.([a-z.]{2,5})$/;
+    // const alphaOnly = /^[A-Za-z]+$/;
+    // const alphaNumeric = /^[0-9a-zA-Z]+$/;
 
-    // Checking correct lengths of inputs
-    if (lengthChecks('first name', first_name, 2, 50, res)) return;
-    if (checkCharacterType('first name', first_name, /^[A-Za-z]+$/, 'alpha characters only', res)) {
-      return;
-    }
+    // // Checking correct lengths of inputs
+    // if (lengthChecks('first name', first_name, 2, 50, res)) return;
+    // if (checkCharacterType('first name', first_name, alphaOnly, 'alpha characters only', res)) {
+    //   return;
+    // }
 
-    if (lengthChecks('last name', last_name, 2, 50, res)) return;
-    if (checkCharacterType('last name', first_name, /^[A-Za-z]+$/, 'alpha characters only', res)) {
-      return;
-    }
+    // if (lengthChecks('last name', last_name, 2, 50, res)) return;
+    // if (checkCharacterType('last name', first_name, alphaOnly, 'alpha characters only', res)) {
+    //   return;
+    // }
 
-    if (
-      checkCharacterType(
-        'email',
-        email,
-        emailFormat,
-        'an @ special character & a second-level domain',
-        res,
-      )
-    ) {
-      return;
-    }
+    // if (
+    //   checkCharacterType(
+    //     'email',
+    //     email,
+    //     emailFormat,
+    //     'an @ special character & a second-level domain',
+    //     res,
+    //   )
+    // ) {
+    //   return;
+    // }
 
-    if (lengthChecks('username', username, 5, 10, res)) return;
-    if (
-      checkCharacterType(
-        'username',
-        username,
-        /^[0-9a-zA-Z]+$/,
-        'alphanumeric characters only',
-        res,
-      )
-    ) {
-      return;
-    }
+    // if (lengthChecks('username', username, 5, 10, res)) return;
+    // if (
+    //   checkCharacterType(
+    //     'username',
+    //     username,
+    //     alphaNumeric,
+    //     'alphanumeric characters only',
+    //     res,
+    //   )
+    // ) {
+    //   return;
+    // }
 
-    if (lengthChecks('password', password, 5, 10, res)) return;
-    if (
-      checkCharacterType(
-        'password',
-        password,
-        passwordFormat,
-        '1 numeric character & 1 special character',
-        res,
-      )
-    ) {
-      return;
-    }
+    // if (lengthChecks('password', password, 5, 12, res)) return;
+    // if (
+    //   checkCharacterType(
+    //     'password',
+    //     password,
+    //     passwordFormat,
+    //     '1 numeric character & 1 special character',
+    //     res,
+    //   )
+    // ) {
+    //   return;
+    // }
 
-    if (confirmPassword !== password) {
-      return res.status(400).json({
-        msg: 'passwords do not match',
-      });
-    }
+    // if (confirmPassword !== password) {
+    //   return res.status(400).json({
+    //     msg: 'passwords do not match',
+    //   });
+    // }
 
-    if (username !== email.split('@')[0]) {
-      return res.status(400).json({
-        msg: 'email prefix must match username ',
-      });
-    }
+    // if (username !== email.split('@')[0]) {
+    //   return res.status(400).json({
+    //     msg: 'email prefix must match username ',
+    //   });
+    // }
 
     const picture = `https://avatars.dicebear.com/api/avataaars/${username}.svg`;
 
@@ -208,4 +224,40 @@ const login = async (req, res) => {
   }
 };
 
-export { register, login };
+// prettier-ignore
+const usersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/basic-users.json";
+// prettier-ignore
+const adminUsersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/admin-users.json";
+
+//  Seeding users
+const seedUsers = async (req, res) => {
+  try {
+    const response = await axios.get(adminUsersURL);
+    const { data } = response; // assigning api data
+
+    for (let i = 0; i < data.length; i++) {
+      console.log('here');
+      if (checkCrudentials(data[i], res)) return;
+      console.log('data[i]', data[i].password);
+      // eslint-disable-next-line no-await-in-loop
+      const salt = await bcryptjs.genSalt();
+      // eslint-disable-next-line no-await-in-loop
+      data[i].password = await bcryptjs.hash(data[i].password, salt);
+      delete data[i].confirmPassword;
+    }
+
+    console.log(data);
+    // const salt = await bcryptjs.genSalt();
+    await prisma.user.createMany({
+      data,
+    });
+
+    return res.status(200).json({
+      msg: 'Users successfully added',
+    });
+  } catch (err) {
+    return catchReturn(res, err);
+  }
+};
+
+export { register, login, seedUsers };
