@@ -261,29 +261,36 @@ const seedData = async (req, res, model, tableName, URL, authCheck, userType1, u
 const seedUsers = async (req, res, usersURL, checkCrudentials) => {
   try {
     const response = await axios.get(usersURL);
-    const { data } = response; // assigning api data
+    const { data: userData } = response; // assigning api data
 
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < data.length; i++) {
-      if (checkCrudentials(data[i])) {
+    for (let i = 0; i < userData.length; i + 1) {
+      if (checkCrudentials(userData[i])) {
         return res.status(400).json({
-          msg: checkCrudentials(data[i]),
+          msg: checkCrudentials(userData[i]),
         });
       }
-      // eslint-disable-next-line no-await-in-loop
-      const salt = await bcryptjs.genSalt();
-      // eslint-disable-next-line no-await-in-loop
-      data[i].password = await bcryptjs.hash(data[i].password, salt);
-      delete data[i].confirmPassword;
     }
+
+    const data = await Promise.all(
+      userData.map(async (user) => {
+        const salt = await bcryptjs.genSalt();
+        user.password = await bcryptjs.hash(user.password, salt);
+        delete user.confirmPassword;
+        return {
+          ...user,
+        };
+      }),
+    );
+
+    console.log('formattedData', data);
 
     await prisma.user.createMany({
       data,
     });
 
     data.forEach((user) => {
+      // delete user.password;
       delete user.password;
-      delete user.confirmPassword;
     });
 
     return res.status(200).json({
@@ -291,6 +298,7 @@ const seedUsers = async (req, res, usersURL, checkCrudentials) => {
       data,
     });
   } catch (err) {
+    console.log('err', err);
     return catchReturn(res, err);
   }
 };

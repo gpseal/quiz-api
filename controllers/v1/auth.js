@@ -60,72 +60,6 @@ const register = async (req, res) => {
     }
     console.log('user here');
 
-    // const passwordFormat = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
-    // const emailFormat = /^([A-Za-z0-9_.-]+)@([\da-zA-Z.-]+)\.([a-z.]{2,5})$/;
-    // const alphaOnly = /^[A-Za-z]+$/;
-    // const alphaNumeric = /^[0-9a-zA-Z]+$/;
-
-    // // Checking correct lengths of inputs
-    // if (lengthChecks('first name', first_name, 2, 50, res)) return;
-    // if (checkCharacterType('first name', first_name, alphaOnly, 'alpha characters only', res)) {
-    //   return;
-    // }
-
-    // if (lengthChecks('last name', last_name, 2, 50, res)) return;
-    // if (checkCharacterType('last name', first_name, alphaOnly, 'alpha characters only', res)) {
-    //   return;
-    // }
-
-    // if (
-    //   checkCharacterType(
-    //     'email',
-    //     email,
-    //     emailFormat,
-    //     'an @ special character & a second-level domain',
-    //     res,
-    //   )
-    // ) {
-    //   return;
-    // }
-
-    // if (lengthChecks('username', username, 5, 10, res)) return;
-    // if (
-    //   checkCharacterType(
-    //     'username',
-    //     username,
-    //     alphaNumeric,
-    //     'alphanumeric characters only',
-    //     res,
-    //   )
-    // ) {
-    //   return;
-    // }
-
-    // if (lengthChecks('password', password, 5, 12, res)) return;
-    // if (
-    //   checkCharacterType(
-    //     'password',
-    //     password,
-    //     passwordFormat,
-    //     '1 numeric character & 1 special character',
-    //     res,
-    //   )
-    // ) {
-    //   return;
-    // }
-
-    // if (confirmPassword !== password) {
-    //   return res.status(400).json({
-    //     msg: 'passwords do not match',
-    //   });
-    // }
-
-    // if (username !== email.split('@')[0]) {
-    //   return res.status(400).json({
-    //     msg: 'email prefix must match username ',
-    //   });
-    // }
-
     const picture = `https://avatars.dicebear.com/api/avataaars/${username}.svg`;
 
     /**
@@ -215,6 +149,8 @@ const login = async (req, res) => {
         expiresIn: JWT_LIFETIME,
       },
     );
+
+    console.log('token', token);
 
     return res.status(200).json({
       msg: `${user.username} successfully logged in`,

@@ -85,7 +85,7 @@ const checkCrudentials = (crudentials) => {
       'password',
       crudentials.password,
       5,
-      12,
+      10,
       passwordFormat,
       '1 numeric character & 1 special character',
     )
@@ -94,7 +94,7 @@ const checkCrudentials = (crudentials) => {
       'password',
       crudentials.password,
       5,
-      12,
+      10,
       passwordFormat,
       '1 numeric character & 1 special character',
     );
