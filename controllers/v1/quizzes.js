@@ -1,7 +1,7 @@
 import axios from 'axios';
 // import { response } from 'express';
 import prisma from '../../utils/prisma.js';
-import { lengthChecks, checkCharacterType } from '../../utils/validation.js';
+import { fieldValidation } from '../../utils/validation.js';
 import authCheck from '../../utils/authorization.js';
 import { getResource, deleteResource, getResources, updateResource, catchReturn } from './base.js';
 
@@ -55,11 +55,12 @@ const createQuiz = async (req, res) => {
       });
     }
 
-    if (lengthChecks('quiz name', req.body.name, 5, 30, res)) return;
-    if (
-      checkCharacterType('quiz name', req.body.name, /^[A-Za-z]+$/, 'alpha characters only', res)
-    ) {
-      return;
+    const alphaOnly = /^[A-Za-z]+$/;
+
+    if (fieldValidation('quiz name', req.body.name, 5, 30, alphaOnly, 'alpha characters only')) {
+      return res.status(400).json({
+        msg: fieldValidation('quiz name', req.body.name, 5, 30, alphaOnly, 'alpha characters only'),
+      });
     }
 
     //  create quiz using req data

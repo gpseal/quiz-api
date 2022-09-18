@@ -4,7 +4,7 @@ import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { lengthChecks, checkCharacterType, checkCrudentials } from '../../utils/validation.js';
+import { checkCrudentials } from '../../utils/validation.js';
 // import {
 //   seedData,
 // } from './base.js';
@@ -28,7 +28,12 @@ const register = async (req, res) => {
       role,
       confirmPassword } = req.body;
 
-    if (checkCrudentials(req.body, res)) return;
+    if (checkCrudentials(req.body)) {
+      return res.status(400).json({
+        msg: checkCrudentials(req.body),
+      });
+    }
+
     // console.log(first_name);
     // Check for unique email and username
     let user = await prisma.user.findFirst({
@@ -236,9 +241,12 @@ const seedUsers = async (req, res) => {
     const { data } = response; // assigning api data
 
     for (let i = 0; i < data.length; i++) {
-      console.log('here');
-      if (checkCrudentials(data[i], res)) return;
-      console.log('data[i]', data[i].password);
+      // if (checkCrudentials(data[i], res)) return;
+      if (checkCrudentials(data[i])) {
+        return res.status(400).json({
+          msg: checkCrudentials(data[i]),
+        });
+      }
       // eslint-disable-next-line no-await-in-loop
       const salt = await bcryptjs.genSalt();
       // eslint-disable-next-line no-await-in-loop
@@ -246,14 +254,20 @@ const seedUsers = async (req, res) => {
       delete data[i].confirmPassword;
     }
 
-    console.log(data);
-    // const salt = await bcryptjs.genSalt();
+    console.log('data', data);
+
     await prisma.user.createMany({
       data,
     });
 
+    data.forEach((user) => {
+      delete user.password;
+      delete user.confirmPassword;
+    });
+
     return res.status(200).json({
       msg: 'Users successfully added',
+      data,
     });
   } catch (err) {
     return catchReturn(res, err);

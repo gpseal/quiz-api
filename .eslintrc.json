@@ -27,6 +27,7 @@
     "consistent-return": 1,
     "linebreak-style": 1,
     "prettier/prettier": [0, { "endOfLine": "auto" }],
+    "no-param-reassign": ["error", { "props": false }],
     "import/extensions": [
       2,
       "ignorePackages",
