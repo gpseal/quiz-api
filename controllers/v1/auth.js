@@ -5,9 +5,7 @@ import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { checkCrudentials } from '../../utils/validation.js';
-// import {
-//   seedData,
-// } from './base.js';
+import { seedUsers } from './base.js';
 
 const catchReturn = (res, err) => {
   res.status(500).json({
@@ -235,43 +233,12 @@ const usersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4
 const adminUsersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/admin-users.json";
 
 //  Seeding users
-const seedUsers = async (req, res) => {
-  try {
-    const response = await axios.get(adminUsersURL);
-    const { data } = response; // assigning api data
-
-    for (let i = 0; i < data.length; i++) {
-      // if (checkCrudentials(data[i], res)) return;
-      if (checkCrudentials(data[i])) {
-        return res.status(400).json({
-          msg: checkCrudentials(data[i]),
-        });
-      }
-      // eslint-disable-next-line no-await-in-loop
-      const salt = await bcryptjs.genSalt();
-      // eslint-disable-next-line no-await-in-loop
-      data[i].password = await bcryptjs.hash(data[i].password, salt);
-      delete data[i].confirmPassword;
-    }
-
-    console.log('data', data);
-
-    await prisma.user.createMany({
-      data,
-    });
-
-    data.forEach((user) => {
-      delete user.password;
-      delete user.confirmPassword;
-    });
-
-    return res.status(200).json({
-      msg: 'Users successfully added',
-      data,
-    });
-  } catch (err) {
-    return catchReturn(res, err);
-  }
+const seedBasicUsers = (req, res) => {
+  seedUsers(req, res, usersURL, checkCrudentials);
 };
 
-export { register, login, seedUsers };
+const seedAdminUsers = (req, res) => {
+  seedUsers(req, res, adminUsersURL, checkCrudentials);
+};
+
+export { register, login, seedBasicUsers, seedAdminUsers };

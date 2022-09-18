@@ -1,5 +1,7 @@
 import axios from 'axios';
+import bcryptjs from 'bcryptjs';
 import prisma from '../../utils/prisma.js';
+// import { checkCrudentials } from '../../utils/validation.js';
 
 const catchReturn = (res, err) => {
   res.status(500).json({
@@ -256,6 +258,43 @@ const seedData = async (req, res, model, tableName, URL, authCheck, userType1, u
   }
 };
 
+const seedUsers = async (req, res, usersURL, checkCrudentials) => {
+  try {
+    const response = await axios.get(usersURL);
+    const { data } = response; // assigning api data
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < data.length; i++) {
+      if (checkCrudentials(data[i])) {
+        return res.status(400).json({
+          msg: checkCrudentials(data[i]),
+        });
+      }
+      // eslint-disable-next-line no-await-in-loop
+      const salt = await bcryptjs.genSalt();
+      // eslint-disable-next-line no-await-in-loop
+      data[i].password = await bcryptjs.hash(data[i].password, salt);
+      delete data[i].confirmPassword;
+    }
+
+    await prisma.user.createMany({
+      data,
+    });
+
+    data.forEach((user) => {
+      delete user.password;
+      delete user.confirmPassword;
+    });
+
+    return res.status(200).json({
+      msg: 'Users successfully added',
+      data,
+    });
+  } catch (err) {
+    return catchReturn(res, err);
+  }
+};
+
 // eslint-disable-next-line max-len
 export {
   getResource,
@@ -265,4 +304,5 @@ export {
   createResource,
   seedData,
   catchReturn,
+  seedUsers,
 };
