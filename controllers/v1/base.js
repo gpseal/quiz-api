@@ -50,8 +50,10 @@ const getResource = async (req, res, model, tableName, include) => {
 };
 
 // all resources
-const getResources = async (res, model, tableName, include) => {
+const getResources = async (req, res, model, tableName, include) => {
   try {
+
+    console.log("get all");
     /**
      * The findMany function returns all records
      */
@@ -59,9 +61,9 @@ const getResources = async (res, model, tableName, include) => {
     // prettier-ignore
     const resources = !include
       ? await model.findMany()
-      : await model.findMany({
+      : await model.findMany(
         include,
-      });
+      );
 
     // if array is empty
     if (resources.length === 0) {
@@ -236,23 +238,25 @@ const seedData = async (req, res, model, tableName, URL, userType1, userType2) =
       },
     });
 
-    if (authCheck) {
-      if (authCheck(user, res, userType1, userType2)) return;
-    }
+    // if (authCheck) {
+    //   if (authCheck(user, res, userType1, userType2)) return;
+    // }
 
     const response = await axios.get(URL);
-    const { data } = response; // assigning api data
+    const { trivia_categories } = response.data; // assigning api data
+
+    console.log('trivia_categories', trivia_categories);
 
     // Insert documents into the collection (from api axios get)
     await model.createMany({
-      data,
+      data: trivia_categories,
     }); // check this, should it be data:data?
 
     const newResources = await model.findMany();
 
     return res.status(201).json({
       msg: `${tableName}s successfully created`,
-      data: newResources,
+      data: trivia_categories,
     });
   } catch (err) {
     return catchReturn(res, err);
@@ -269,12 +273,12 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       },
     });
 
-    console.log('user', user);
+    // console.log('user', user);
     if (authCheck) {
       if (authCheck(user, res, userType1, userType2)) return;
     }
-    console.log('req', req.user);
-    console.log('userID', id);
+    // console.log('req', req.user);
+    // console.log('userID', id);
 
     const response = await axios.get(usersURL);
     const { data: userData } = response; // assigning api data
@@ -309,14 +313,12 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       }),
     );
 
-    // console.log('data', data);
 
     await prisma.user.createMany({
       data,
     });
 
     data.forEach((userEntry) => {
-      // delete user.password;
       delete userEntry.password;
     });
 

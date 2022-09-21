@@ -8,6 +8,7 @@ const authCheck = (user, res, role1, role2) => {
       });
     }
   } else if (user.role !== role1) {
+    console.log("here");
     return res.status(403).json({
       msg: 'You are not authorized to perform this action',
     });
