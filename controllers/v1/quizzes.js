@@ -12,11 +12,11 @@ const include = {
     questions: true,
     scores: true,
     rating: true,
-  }
+  },
 };
 
 const getQuiz = (req, res) => {
-  console.log("get quiaaze");
+  console.log('get quiaaze');
   getResource(req, res, prisma.quiz, tableName, include);
 };
 
@@ -27,59 +27,57 @@ const getQuizzes = (req, res) => {
 const past = {
   where: {
     end_date: {
-      lt: new Date()
-    }
+      lt: new Date(),
+    },
   },
   include: {
     questions: true,
     scores: true,
     rating: true,
-  }
+  },
 };
 
 const current = {
   where: {
     end_date: {
-      gte: new Date()
+      gte: new Date(),
     },
     start_date: {
-      lt: new Date()
-    }
+      lt: new Date(),
+    },
   },
   include: {
     questions: true,
     scores: true,
     rating: true,
-  }
+  },
 };
 
 const future = {
   where: {
     start_date: {
-      gte: new Date()
-    }
+      gte: new Date(),
+    },
   },
   include: {
     questions: true,
     scores: true,
     rating: true,
-  }
+  },
 };
 
 const getTimeQuizzes = (req, res) => {
-  const { timeFrame } = req.params
-  if (timeFrame === "past") {
+  const { timeFrame } = req.params;
+  if (timeFrame === 'past') {
     getResources(req, res, prisma.quiz, tableName, past);
   }
-  if (timeFrame === "current") {
+  if (timeFrame === 'current') {
     getResources(req, res, prisma.quiz, tableName, current);
   }
-  if (timeFrame === "future") {
+  if (timeFrame === 'future') {
     getResources(req, res, prisma.quiz, tableName, future);
   }
-  
 };
-
 
 const createQuiz = async (req, res) => {
   // createResource(req, res, prisma.quiz, tableName);
@@ -188,7 +186,7 @@ const deleteQuiz = (req, res) => {
 
 // allows users to participate in quizzes within quiz dates
 const takeQuiz = async (req, res) => {
-  console.log("take quia");
+  console.log('take quia');
   try {
     const { id } = req.params;
     const { id: userID } = req.user;

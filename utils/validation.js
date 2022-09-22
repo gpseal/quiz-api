@@ -7,106 +7,127 @@ const fieldValidation = (fieldName, name, minLength, MaxLength, type, mssge) => 
   }
 };
 
-const checkCrudentials = (crudentials) => {
+const checkCredentials = (credentials) => {
   const passwordFormat = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
   const emailFormat = /^([A-Za-z0-9_.-]+)@([\da-zA-Z.-]+)\.([a-z.]{2,5})$/;
   const alphaOnly = /^[A-Za-z]+$/;
   const alphaNumeric = /^[0-9a-zA-Z]+$/;
 
   // Checking correct lengths of inputs
-  if (
-    fieldValidation('first name', crudentials.first_name, 2, 50, alphaOnly, 'alpha characters only')
-  ) {
-    return fieldValidation(
-      'first name',
-      crudentials.first_name,
-      2,
-      50,
-      alphaOnly,
-      'alpha characters only',
-    );
+  if (credentials.first_name) {
+    if (
+      fieldValidation(
+        'first name',
+        credentials.first_name,
+        2,
+        50,
+        alphaOnly,
+        'alpha characters only',
+      )
+    ) {
+      return fieldValidation(
+        'first name',
+        credentials.first_name,
+        2,
+        50,
+        alphaOnly,
+        'alpha characters only',
+      );
+    }
   }
 
-  if (
-    fieldValidation('last name', crudentials.last_name, 2, 50, alphaOnly, 'alpha characters only')
-  ) {
-    return fieldValidation(
-      'last name',
-      crudentials.last_name,
-      2,
-      50,
-      alphaOnly,
-      'alpha characters only',
-    );
+  if (credentials.last_name) {
+    if (
+      fieldValidation('last name', credentials.last_name, 2, 50, alphaOnly, 'alpha characters only')
+    ) {
+      return fieldValidation(
+        'last name',
+        credentials.last_name,
+        2,
+        50,
+        alphaOnly,
+        'alpha characters only',
+      );
+    }
   }
 
-  if (
-    fieldValidation(
-      'email',
-      crudentials.email,
-      0,
-      50,
-      emailFormat,
-      'an @ special character & a second-level domain',
-    )
-  ) {
-    return fieldValidation(
-      'email',
-      crudentials.email,
-      0,
-      50,
-      emailFormat,
-      'an @ special character & a second-level domain',
-    );
+  if (credentials.email) {
+    if (
+      fieldValidation(
+        'email',
+        credentials.email,
+        0,
+        50,
+        emailFormat,
+        'an @ special character & a second-level domain',
+      )
+    ) {
+      return fieldValidation(
+        'email',
+        credentials.email,
+        0,
+        50,
+        emailFormat,
+        'an @ special character & a second-level domain',
+      );
+    }
   }
 
-  if (
-    fieldValidation(
-      'username',
-      crudentials.username,
-      5,
-      10,
-      alphaNumeric,
-      'alphanumeric characters only',
-    )
-  ) {
-    return fieldValidation(
-      'username',
-      crudentials.username,
-      5,
-      10,
-      alphaNumeric,
-      'alphanumeric characters only',
-    );
+  if (credentials.username) {
+    if (
+      fieldValidation(
+        'username',
+        credentials.username,
+        5,
+        10,
+        alphaNumeric,
+        'alphanumeric characters only',
+      )
+    ) {
+      return fieldValidation(
+        'username',
+        credentials.username,
+        5,
+        10,
+        alphaNumeric,
+        'alphanumeric characters only',
+      );
+    }
   }
 
-  if (
-    fieldValidation(
-      'password',
-      crudentials.password,
-      5,
-      12,
-      passwordFormat,
-      '1 numeric character & 1 special character',
-    )
-  ) {
-    return fieldValidation(
-      'password',
-      crudentials.password,
-      5,
-      12,
-      passwordFormat,
-      '1 numeric character & 1 special character',
-    );
+  if (credentials.password) {
+    if (
+      fieldValidation(
+        'password',
+        credentials.password,
+        5,
+        12,
+        passwordFormat,
+        '1 numeric character & 1 special character',
+      )
+    ) {
+      return fieldValidation(
+        'password',
+        credentials.password,
+        5,
+        12,
+        passwordFormat,
+        '1 numeric character & 1 special character',
+      );
+    }
   }
 
-  if (crudentials.confirmPassword !== crudentials.password) {
-    return 'passwords do not match';
+  if (credentials.confirmPassword) {
+    if (credentials.confirmPassword !== credentials.password) {
+      return 'passwords do not match';
+    }
   }
 
-  if (crudentials.username !== crudentials.email.split('@')[0]) {
-    return 'email prefix must match username ';
+  if (credentials.username) {
+    if (credentials.username !== credentials.email.split('@')[0]) {
+      return 'email prefix must match username ';
+    }
   }
 };
 
-export { fieldValidation, checkCrudentials };
+export { fieldValidation, checkCredentials };

@@ -17,6 +17,7 @@
         "ObjectPattern": { "multiline": false }
       }
     ],
+    "operator-linebreak": ["error", "after", { "overrides": { "?": "ignore", ":": "ignore" } }],
     "quotes": 0,
     "no-multiple-empty-lines": 1,
     "no-multi-spaces": 1,

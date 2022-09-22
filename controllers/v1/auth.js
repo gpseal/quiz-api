@@ -4,7 +4,7 @@ import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { checkCrudentials } from '../../utils/validation.js';
+import { checkCredentials } from '../../utils/validation.js';
 import { seedUsers } from './base.js';
 import authCheck from '../../utils/authorization.js';
 
@@ -27,9 +27,16 @@ const register = async (req, res) => {
       role,
       confirmPassword } = req.body;
 
-    if (checkCrudentials(req.body)) {
+    // if (role === "ADMIN_USER" || role === "SUPER_ADMIN_USER") {
+    //   return res.status(403).json({
+    //     msg: 'You are not authorized to perform this action',
+    //   });
+    // }
+
+    //  checking that inputs are all correct
+    if (checkCredentials(req.body)) {
       return res.status(400).json({
-        msg: checkCrudentials(req.body),
+        msg: checkCredentials(req.body),
       });
     }
 
@@ -59,7 +66,6 @@ const register = async (req, res) => {
         msg: 'email already exists',
       });
     }
-    console.log('user here');
 
     const picture = `https://avatars.dicebear.com/api/avataaars/${username}.svg`;
 

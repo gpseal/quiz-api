@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 
 const authRoute = (req, res, next) => {
   try {
-    console.log('authroute');
     /**
      * The authorization request header provides information that authenticates
      * a user agent with a server, allowing access to a protected resource. The
@@ -38,6 +37,7 @@ const authRoute = (req, res, next) => {
      * Set Request's user property to the authenticated user
      */
     req.user = payload;
+    console.log('req.user', req.user);
 
     return next();
   } catch (error) {

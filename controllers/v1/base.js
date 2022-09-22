@@ -1,7 +1,7 @@
 import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import prisma from '../../utils/prisma.js';
-import { checkCrudentials } from '../../utils/validation.js';
+import { checkCredentials } from '../../utils/validation.js';
 import authCheck from '../../utils/authorization.js';
 
 const catchReturn = (res, err) => {
@@ -13,8 +13,7 @@ const catchReturn = (res, err) => {
 // single resource
 const getResource = async (req, res, model, tableName, include) => {
   try {
-    const { id } = req.params; // defines record to be displayed from URL params
-
+    const { id } = req.params; // d
     const resource = !include
       ? await model.findUnique({
           where: {
@@ -27,12 +26,6 @@ const getResource = async (req, res, model, tableName, include) => {
           },
           include,
         });
-
-    // const resource = await model.findUnique({
-    //   where: {
-    //     id: Number(id),
-    //   }, // finds record using ID from URL params
-    // });
 
     // checks that record exists
     if (!resource) {
@@ -52,16 +45,15 @@ const getResource = async (req, res, model, tableName, include) => {
 // all resources
 const getResources = async (req, res, model, tableName, include) => {
   try {
-
-    console.log("get all");
+    console.log('get all');
     /**
      * The findMany function returns all records
      */
     // checks to see if 'include' exists as an argument, adds to findMany if it does
     // prettier-ignore
-    const resources = !include
-      ? await model.findMany()
-      : await model.findMany(
+    const resources = !include ?
+      await model.findMany() :
+      await model.findMany(
         include,
       );
 
@@ -107,7 +99,7 @@ const deleteResource = async (req, res, model, tableName, userType) => {
     // check record exists
     if (!resource) {
       return res.status(200).json({
-        msg: `No ${tableName} with the id: ${id} found`,
+        msg: `No ${tableName} with the id ${id} found`,
       });
     }
 
@@ -118,7 +110,7 @@ const deleteResource = async (req, res, model, tableName, userType) => {
     });
 
     return res.json({
-      msg: `${tableName} with the id: ${id} successfully deleted`,
+      msg: `${tableName} with the id ${id} successfully deleted`,
     });
   } catch (err) {
     return catchReturn(res, err);
@@ -238,17 +230,13 @@ const seedData = async (req, res, model, tableName, URL, userType1, userType2) =
       },
     });
 
-    // if (authCheck) {
-    //   if (authCheck(user, res, userType1, userType2)) return;
-    // }
-
     const response = await axios.get(URL);
+    // eslint-disable-next-line camelcase
     const { trivia_categories } = response.data; // assigning api data
-
-    console.log('trivia_categories', trivia_categories);
 
     // Insert documents into the collection (from api axios get)
     await model.createMany({
+      // eslint-disable-next-line camelcase
       data: trivia_categories,
     }); // check this, should it be data:data?
 
@@ -256,6 +244,7 @@ const seedData = async (req, res, model, tableName, URL, userType1, userType2) =
 
     return res.status(201).json({
       msg: `${tableName}s successfully created`,
+      // eslint-disable-next-line camelcase
       data: trivia_categories,
     });
   } catch (err) {
@@ -273,12 +262,7 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       },
     });
 
-    // console.log('user', user);
-    if (authCheck) {
-      if (authCheck(user, res, userType1, userType2)) return;
-    }
-    // console.log('req', req.user);
-    // console.log('userID', id);
+    if (authCheck(user, res, userType1, userType2)) return;
 
     const response = await axios.get(usersURL);
     const { data: userData } = response; // assigning api data
@@ -295,9 +279,9 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
 
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < userData.length; i++) {
-      if (checkCrudentials(userData[i])) {
+      if (checkCredentials(userData[i])) {
         return res.status(400).json({
-          msg: checkCrudentials(userData[i]),
+          msg: checkCredentials(userData[i]),
         });
       }
     }
@@ -312,7 +296,6 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
         };
       }),
     );
-
 
     await prisma.user.createMany({
       data,
