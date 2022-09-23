@@ -6,9 +6,11 @@ import {
   getUser,
   updateUser,
   deleteUsers,
+  getUsers,
 } from '../../controllers/v1/users.js';
 
 const router = Router();
+router.route('/').get(getUsers);
 router.route('/:id').get(getUser);
 router.route('/:id').put(updateUser);
 router.route('/:id').delete(deleteUsers);

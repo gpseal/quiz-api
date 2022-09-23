@@ -1,3 +1,5 @@
+import prisma from './prisma.js';
+
 const catchReturn = (res, err) => {
   res.status(500).json({
     msg: err.message,
@@ -10,4 +12,14 @@ const notAuthorized = (res) => {
   });
 };
 
-export { catchReturn, notAuthorized };
+//  collects current user info from database
+const getUserInfo = async (userID) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: Number(userID),
+    },
+  });
+  return user;
+};
+
+export { catchReturn, notAuthorized, getUserInfo };

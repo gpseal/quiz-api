@@ -2,17 +2,7 @@ import bcryptjs from 'bcryptjs';
 import prisma from '../../utils/prisma.js';
 import { checkCredentials } from '../../utils/validation.js';
 import { seedUsers, getResource, getResources, deleteResource, updateResource } from './base.js';
-import { catchReturn, notAuthorized } from '../../utils/misc.js';
-
-//  Function to collect user account info from prisma database
-const getUserInfo = async (userID) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: Number(userID),
-    },
-  });
-  return user;
-};
+import { catchReturn, notAuthorized, getUserInfo } from '../../utils/misc.js';
 
 const tableName = 'users';
 // prettier-ignore
@@ -21,6 +11,40 @@ const usersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4
 const adminUsersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/admin-users.json";
 
 const table = prisma.user;
+
+const getUsers = async (req, res) => {
+  try {
+    const { id: userID } = req.user;
+    // getting user record
+    const user = await getUserInfo(userID);
+
+    if (user.role === 'BASIC_USER') return notAuthorized(res);
+
+    let users = await prisma.user.findMany();
+
+    if (users.length === 0) {
+      return res.status(200).json({
+        msg: 'No users found',
+      });
+    }
+
+    if (user.role === 'ADMIN_USER') {
+      users = await prisma.user.findMany({
+        where: {
+          role: {
+            not: 'SUPER_ADMIN_USER',
+          },
+        },
+      });
+    }
+
+    return res.json({
+      data: users,
+    });
+  } catch (err) {
+    return catchReturn(res, err);
+  }
+};
 
 const getUser = async (req, res) => {
   try {
@@ -69,6 +93,8 @@ const updateUser = async (req, res) => {
         msg: checkCredentials(req.body),
       });
     }
+    console.log('recordID', recordID);
+    console.log('userID', userID);
 
     if (req.body.password) {
       const salt = await bcryptjs.genSalt();
@@ -159,4 +185,4 @@ const seedAdminUsers = (req, res) => {
   seedUsers(req, res, adminUsersURL, 'SUPER_ADMIN_USER');
 };
 
-export { seedBasicUsers, seedAdminUsers, getUser, updateUser, deleteUsers };
+export { seedBasicUsers, seedAdminUsers, getUser, updateUser, deleteUsers, getUsers };

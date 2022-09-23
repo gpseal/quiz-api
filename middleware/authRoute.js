@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
+import prisma from '../utils/prisma.js';
 
-const authRoute = (req, res, next) => {
+const authRoute = async (req, res, next) => {
   try {
     /**
      * The authorization request header provides information that authenticates
@@ -10,7 +11,6 @@ const authRoute = (req, res, next) => {
      * like Google Chrome
      */
     const authHeader = req.headers.authorization;
-
     /**
      * A bearer token will look something like this - Bearer <JWT>. A
      * response containing a 403 forbidden status code and message
@@ -27,17 +27,30 @@ const authRoute = (req, res, next) => {
      */
     const token = authHeader.split(' ')[1];
 
+    //  Checks to see if token exists in database
+    const checkToken = await prisma.token.findFirst({
+      where: {
+        token,
+      }, // finds record using ID from URL params
+    });
+
+    //  If token exists, does not allow its use, asks user to log in
+    if (checkToken) {
+      return res.status(403).json({
+        msg: 'Please Login',
+      });
+    }
+
     /**
      * Verify the signed JWT is valid. The first argument is the token,
      * i.e., JWT and the second argument is the secret or public/private key
      */
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-
     /**
      * Set Request's user property to the authenticated user
      */
     req.user = payload;
-    console.log('req.user', req.user);
+    console.log('payload', payload);
 
     return next();
   } catch (error) {

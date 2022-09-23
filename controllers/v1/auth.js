@@ -7,12 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import { checkCredentials } from '../../utils/validation.js';
 import { seedUsers } from './base.js';
 import authCheck from '../../utils/authorization.js';
-
-const catchReturn = (res, err) => {
-  res.status(500).json({
-    msg: err.message,
-  });
-};
+import { catchReturn, notAuthorized, getUserInfo } from '../../utils/misc.js';
 
 const prisma = new PrismaClient();
 
@@ -170,19 +165,33 @@ const login = async (req, res) => {
   }
 };
 
-// // prettier-ignore
-// const usersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/basic-users.json";
-// // prettier-ignore
-// const adminUsersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/admin-users.json";
+const logout = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
 
-// // deleteResource(req, res, prisma.quiz, tableName, authCheck, 'SUPER_ADMIN_USER');
-// //  Seeding users
-// const seedBasicUsers = (req, res) => {
-//   seedUsers(req, res, usersURL, 'SUPER_ADMIN_USER', 'ADMIN_USER');
-// };
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(403).json({
+        msg: 'No token provided',
+      });
+    }
 
-// const seedAdminUsers = (req, res) => {
-//   seedUsers(req, res, adminUsersURL, 'SUPER_ADMIN_USER');
-// };
+    const token = authHeader.split(' ')[1];
 
-export { register, login };
+    //  adds token to database so that it can no longer be used
+    await prisma.token.create({
+      data: {
+        token,
+      },
+    });
+
+    return res.status(200).json({
+      msg: `successfully logged out`,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      msg: err.message,
+    });
+  }
+};
+
+export { register, login, logout };

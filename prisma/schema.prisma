@@ -90,3 +90,9 @@ model Questions {
   quizid    Int
   questions Json?
 }
+
+model Token {
+  id      Int @id @default(autoincrement())
+  token   String
+  createdAt  DateTime @default(now())
+}
