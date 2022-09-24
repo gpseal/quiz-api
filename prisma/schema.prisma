@@ -93,6 +93,6 @@ model Questions {
 
 model Token {
   id      Int @id @default(autoincrement())
-  token   String
+  token   String    @unique
   createdAt  DateTime @default(now())
 }

@@ -168,7 +168,7 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-
+    console.log('res.cookie', res.cookie);
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(403).json({
         msg: 'No token provided',
@@ -176,11 +176,23 @@ const logout = async (req, res) => {
     }
 
     const token = authHeader.split(' ')[1];
-
+    jwt.verify(token, process.env.JWT_SECRET);
     //  adds token to database so that it can no longer be used
     await prisma.token.create({
       data: {
         token,
+      },
+    });
+
+    const expTime = new Date();
+    expTime.setTime(expTime.getTime() - 1 * 60 * 60 * 1000);
+
+    // removing saved tokens that are older than one hr
+    await prisma.token.deleteMany({
+      where: {
+        createdAt: {
+          lt: expTime,
+        },
       },
     });
 
@@ -189,7 +201,8 @@ const logout = async (req, res) => {
     });
   } catch (err) {
     return res.status(500).json({
-      msg: err.message,
+      msg: 'invalid token',
+      // msg: err,
     });
   }
 };

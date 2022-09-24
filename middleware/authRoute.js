@@ -27,6 +27,19 @@ const authRoute = async (req, res, next) => {
      */
     const token = authHeader.split(' ')[1];
 
+    /**
+     * Verify the signed JWT is valid. The first argument is the token,
+     * i.e., JWT and the second argument is the secret or public/private key
+     */
+    console.log('before verify');
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('after verify');
+    /**
+     * Set Request's user property to the authenticated user
+     */
+    req.user = payload;
+    // console.log('payload', payload);
+
     //  Checks to see if token exists in database
     const checkToken = await prisma.token.findFirst({
       where: {
@@ -41,21 +54,10 @@ const authRoute = async (req, res, next) => {
       });
     }
 
-    /**
-     * Verify the signed JWT is valid. The first argument is the token,
-     * i.e., JWT and the second argument is the secret or public/private key
-     */
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    /**
-     * Set Request's user property to the authenticated user
-     */
-    req.user = payload;
-    console.log('payload', payload);
-
     return next();
   } catch (error) {
     return res.status(403).json({
-      msg: 'Not authorized to access this route',
+      msg: 'Not authorized to access this route ',
     });
   }
 };
