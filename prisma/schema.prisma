@@ -36,9 +36,9 @@ model Rating {
   id     Int   @id @default(autoincrement())
   user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int?
+  quiz   Quiz? @relation(fields: [quizID], references: [id], onDelete: Cascade)
+  quizID Int?
   rating Int
-  Quiz   Quiz? @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  quizId Int?
 }
 
 model Score {
@@ -77,8 +77,9 @@ model Quiz {
   user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int?
   scores     Score[]
-  average    Decimal?    @db.Decimal(10, 2)
+  avgScore   Decimal?    @db.Decimal(10, 2)
   rating     Rating[]
+  avgRating  Decimal?    @db.Decimal(10, 2)
   questions  Questions[]
   start_date DateTime    @default(now()) @db.Date
   end_date   DateTime    @default(now()) @db.Date
@@ -92,7 +93,7 @@ model Questions {
 }
 
 model Token {
-  id      Int @id @default(autoincrement())
-  token   String    @unique
-  createdAt  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  createdAt DateTime @default(now())
 }

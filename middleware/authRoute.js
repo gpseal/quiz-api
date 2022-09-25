@@ -50,7 +50,7 @@ const authRoute = async (req, res, next) => {
     //  If token exists, does not allow its use, asks user to log in
     if (checkToken) {
       return res.status(403).json({
-        msg: 'Please Login',
+        msg: 'Invalid Token',
       });
     }
 
