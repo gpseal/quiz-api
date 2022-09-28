@@ -2,10 +2,12 @@ import dotenv from 'dotenv';
 import express, { urlencoded, json } from 'express';
 import helmet from 'helmet';
 
+
 /**
  * You will create the routes for institutions and departments later
  */
 import compression from "compression";
+import cacheRoute from "./middleware/cacheRoute.js";
 import categories from './routes/v1/categories.js';
 import quizzes from './routes/v1/quizzes.js';
 import questions from './routes/v1/questions.js';
@@ -36,6 +38,7 @@ app.use(
 );
 app.use(json());
 app.use(compression());
+app.use(cacheRoute);
 
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/auth`, auth);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/categories`, authRoute, categories);
