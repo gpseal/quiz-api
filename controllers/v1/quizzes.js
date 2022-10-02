@@ -91,7 +91,11 @@ const createQuiz = async (req, res) => {
       },
     });
 
-    if (authCheck(user, res, 'ADMIN_USER', 'SUPER_ADMIN_USER')) return;
+    if (authCheck(user, 'ADMIN_USER', 'SUPER_ADMIN_USER') !== true) {
+      return res.status(400).json({
+        msg: `not authorised to perform this action `,
+      });
+    }
 
     //  preparing dates for checking
     const startDate = new Date(req.body.start_date);
@@ -122,7 +126,6 @@ const createQuiz = async (req, res) => {
       });
     }
 
-    console.log('req.body', req.body);
     //  create quiz using req data
     await prisma.quiz.create({
       data: {
@@ -199,7 +202,11 @@ const takeQuiz = async (req, res) => {
     });
 
     // checking user authentication
-    if (authCheck(user, res, 'BASIC_USER')) return;
+    if (authCheck(user, 'BASIC_USER') !== true) {
+      return res.status(400).json({
+        msg: `not authorised to perform this action `,
+      });
+    }
 
     const quiz = await prisma.quiz.findUnique({
       where: {

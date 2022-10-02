@@ -1,9 +1,9 @@
-import { Router } from 'express';
+// import { Router } from 'express';
 
-import { takeQuiz } from '../../controllers/v1/takeQuiz.js';
+// import { takeQuiz } from '../../controllers/v1/takeQuiz.js';
 
-const router = Router();
+// const router = Router();
 
-router.route('/:id').post(takeQuiz);
+// router.route('/:id').post(takeQuiz);
 
-export default router;
+// export default router;

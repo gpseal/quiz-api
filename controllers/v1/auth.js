@@ -152,8 +152,6 @@ const login = async (req, res) => {
       },
     );
 
-    console.log('token', token);
-
     return res.status(200).json({
       msg: `${user.username} successfully logged in`,
       token,
@@ -168,7 +166,6 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    console.log('res.cookie', res.cookie);
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(403).json({
         msg: 'No token provided',
@@ -184,10 +181,13 @@ const logout = async (req, res) => {
       },
     });
 
+    /* setting expire time variable to check if old tokens are to be 
+    deleted from database, as after one hour they become void and there
+    is no need for them to remain in the database */
     const expTime = new Date();
     expTime.setTime(expTime.getTime() - 1 * 60 * 60 * 1000);
 
-    // removing saved tokens that are older than one hr
+    // removing saved tokens that are older than expire time (one hr)
     await prisma.token.deleteMany({
       where: {
         createdAt: {
@@ -196,13 +196,21 @@ const logout = async (req, res) => {
       },
     });
 
+    //  getting user info
+    const { email } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
     return res.status(200).json({
-      msg: `successfully logged out`,
+      msg: `${user.username} successfully logged out`,
     });
   } catch (err) {
     return res.status(500).json({
       msg: 'invalid token',
-      // msg: err,
     });
   }
 };

@@ -31,14 +31,11 @@ const authRoute = async (req, res, next) => {
      * Verify the signed JWT is valid. The first argument is the token,
      * i.e., JWT and the second argument is the secret or public/private key
      */
-    console.log('before verify');
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('after verify');
     /**
      * Set Request's user property to the authenticated user
      */
     req.user = payload;
-    // console.log('payload', payload);
 
     //  Checks to see if token exists in database
     const checkToken = await prisma.token.findFirst({
@@ -47,7 +44,7 @@ const authRoute = async (req, res, next) => {
       }, // finds record using ID from URL params
     });
 
-    //  If token exists, does not allow its use, asks user to log in
+    //  If token exists, does not allow its use
     if (checkToken) {
       return res.status(403).json({
         msg: 'Invalid Token',

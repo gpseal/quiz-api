@@ -84,8 +84,10 @@ const deleteResource = async (req, res, model, tableName, userType) => {
 
     /*  check if authorization function has been given as argument,
     if so, check if user has proper authorization */
-    if (authCheck) {
-      if (authCheck(user, res, userType)) return;
+    if (authCheck(user, userType) !== true) {
+      return res.status(400).json({
+        msg: `not authorised to perform this action `,
+      });
     }
 
     const { id } = req.params; // defines record to be delete with URL params
@@ -240,8 +242,6 @@ const seedData = async (req, res, model, tableName, URL, userType1, userType2) =
       data: trivia_categories,
     }); // check this, should it be data:data?
 
-    const newResources = await model.findMany();
-
     return res.status(201).json({
       msg: `${tableName}s successfully created`,
       // eslint-disable-next-line camelcase
@@ -262,7 +262,12 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       },
     });
 
-    if (authCheck(user, res, userType1, userType2)) return;
+    //  checking if user is authorised to seed users
+    if (authCheck(user, userType1, userType2) !== true) {
+      return res.status(400).json({
+        msg: `not authorised to perform this action `,
+      });
+    }
 
     const response = await axios.get(usersURL);
     const { data: userData } = response; // assigning api data

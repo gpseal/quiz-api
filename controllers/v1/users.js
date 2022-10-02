@@ -93,8 +93,6 @@ const updateUser = async (req, res) => {
         msg: checkCredentials(req.body),
       });
     }
-    console.log('recordID', recordID);
-    console.log('userID', userID);
 
     if (req.body.password) {
       const salt = await bcryptjs.genSalt();

@@ -80,6 +80,7 @@ model Quiz {
   avgScore   Decimal?    @db.Decimal(10, 2)
   rating     Rating[]
   avgRating  Decimal?    @db.Decimal(10, 2)
+  winner     String      @default("N/A")
   questions  Questions[]
   start_date DateTime    @default(now()) @db.Date
   end_date   DateTime    @default(now()) @db.Date

@@ -1,18 +1,17 @@
 //  Compares logged in user ROLE with allowed Role
-const authCheck = (user, res, role1, role2) => {
+const authCheck = (user, role1, role2) => {
+  const auth = true;
+  console.log('user', user);
+  console.log('auth', auth);
   if (role2) {
-    console.log('role2 exists');
     if (user.role !== role1 && user.role !== role2) {
-      return res.status(403).json({
-        msg: 'You are not authorized to perform this action',
-      });
+      return !auth;
     }
   } else if (user.role !== role1) {
-    console.log("here");
-    return res.status(403).json({
-      msg: 'You are not authorized to perform this action',
-    });
+    return !auth;
   }
+  console.log('auth', auth);
+  return auth;
 };
 
 export default authCheck;
