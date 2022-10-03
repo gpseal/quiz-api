@@ -85,7 +85,7 @@ const deleteResource = async (req, res, model, tableName, userType) => {
     /*  check if authorization function has been given as argument,
     if so, check if user has proper authorization */
     if (authCheck(user, userType) !== true) {
-      return res.status(400).json({
+      return res.status(401).json({
         msg: `not authorised to perform this action `,
       });
     }
@@ -264,7 +264,7 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
 
     //  checking if user is authorised to seed users
     if (authCheck(user, userType1, userType2) !== true) {
-      return res.status(400).json({
+      return res.status(401).json({
         msg: `not authorised to perform this action `,
       });
     }

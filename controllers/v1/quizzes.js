@@ -16,7 +16,6 @@ const include = {
 };
 
 const getQuiz = (req, res) => {
-  console.log('get quiaaze');
   getResource(req, res, prisma.quiz, tableName, include);
 };
 
@@ -82,7 +81,6 @@ const getTimeQuizzes = (req, res) => {
 const createQuiz = async (req, res) => {
   // createResource(req, res, prisma.quiz, tableName);
   try {
-    // console.log("here")
     const { id } = req.user;
 
     const user = await prisma.user.findUnique({
@@ -92,7 +90,7 @@ const createQuiz = async (req, res) => {
     });
 
     if (authCheck(user, 'ADMIN_USER', 'SUPER_ADMIN_USER') !== true) {
-      return res.status(400).json({
+      return res.status(401).json({
         msg: `not authorised to perform this action `,
       });
     }
@@ -165,15 +163,19 @@ const createQuiz = async (req, res) => {
       },
     });
 
-    const newResources = await prisma.quiz.findMany({
+    // fetching newly created quiz to display to user
+    const newQuiz = await prisma.quiz.findFirst({
+      where: {
+        id: quizid,
+      },
       include: {
         questions: true,
       },
-    }); // for displaying all records
+    });
 
     return res.status(201).json({
       msg: `${tableName} successfully created`,
-      data: newResources, // show all records
+      data: newQuiz, // show all records
     });
   } catch (err) {
     return catchReturn(res, err);
@@ -190,7 +192,6 @@ const deleteQuiz = (req, res) => {
 
 // allows users to participate in quizzes within quiz dates
 const takeQuiz = async (req, res) => {
-  console.log('take quia');
   try {
     const { id } = req.params;
     const { id: userID } = req.user;
@@ -203,7 +204,7 @@ const takeQuiz = async (req, res) => {
 
     // checking user authentication
     if (authCheck(user, 'BASIC_USER') !== true) {
-      return res.status(400).json({
+      return res.status(401).json({
         msg: `not authorised to perform this action `,
       });
     }
@@ -255,33 +256,6 @@ const takeQuiz = async (req, res) => {
 
 const submitQuiz = async (req, res) => {
   try {
-    let score = 0;
-    const { answers } = req.body; // gets answers from user post
-    const { id } = req.params; // defines record to be displayed from URL params
-
-    if (answers.length !== 10) {
-      return res.status(200).json({
-        msg: `You must answer all ten questions to submit`,
-      });
-    }
-    // getting questions answers to compare with user post
-    const questions = await prisma.quiz.findUnique({
-      where: {
-        id: Number(id),
-      },
-      include: {
-        questions: true,
-      },
-      // finds record using ID from URL params
-    });
-
-    // checks that record exists
-    if (!questions) {
-      return res.status(200).json({
-        msg: `No quiz with the id: ${id} found`,
-      });
-    }
-
     //  Finding user details
     const { id: userID } = req.user;
     const userDetails = await prisma.user.findUnique({
@@ -291,9 +265,46 @@ const submitQuiz = async (req, res) => {
       // finds record using ID from URL params
     });
 
+    if (authCheck(userDetails, 'BASIC_USER') !== true) {
+      return res.status(401).json({
+        msg: `not authorised to perform this action `,
+      });
+    }
+
+    let score = 0;
+    const answers = req.body; // gets answers from user post
+    const { id } = req.params; // defines record to be displayed from URL params
+
+    //  making sure all 10 questions have been answered
+    if (answers.length !== 10) {
+      return res.status(200).json({
+        msg: `You must answer all ten questions to submit`,
+      });
+    }
+    // getting question answers to compare with user post
+    const quiz = await prisma.quiz.findUnique({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        questions: true,
+      },
+      // finds record using ID from URL params
+    });
+
+    // checks that quiz exists
+    if (!quiz) {
+      return res.status(200).json({
+        msg: `No quiz with the id: ${id} found`,
+      });
+    }
+
     //  calculate score by comparing submitted answers to correct answers
     answers.forEach((answer, index) => {
-      if (answer === questions.questions[0].questions[index].correct_answer) {
+      // eslint-disable-next-line max-len
+      if (
+        answer.toLowerCase() === quiz.questions[0].questions[index].correct_answer.toLowerCase()
+      ) {
         score += 1;
       }
     });
@@ -307,7 +318,44 @@ const submitQuiz = async (req, res) => {
       },
     });
 
-    //  calculating total average of quiz
+    //  finding current leader to add as quizz winner
+    const scores = await prisma.score.findMany({
+      where: {
+        quizID: Number(id),
+      },
+    });
+
+    //  finding the winning score
+    let maxScore = 0;
+    scores.forEach((scoreRecord) => {
+      if (scoreRecord.score > maxScore) {
+        maxScore = score;
+      }
+    });
+
+    //  collecting winning userIDs and adding to array
+    const winnerIDs = [];
+    scores.forEach((scoreRecord) => {
+      if (scoreRecord.score === maxScore) {
+        winnerIDs.push(scoreRecord.userId);
+      }
+    });
+    console.log('winnerIDs', winnerIDs);
+
+    //  collecting user IDs so that we can record names into database
+    const allUsers = await prisma.user.findMany();
+    console.log('allUsers', allUsers);
+    let winnerUserNames = [];
+    allUsers.forEach((user) => {
+      if (winnerIDs.includes(user.id)) {
+        winnerUserNames.push(user.username);
+      }
+    });
+
+    //  formatiing usernames into string to place into database record
+    winnerUserNames = winnerUserNames.toString().replace(',', ', ');
+
+    //  Calculating quizz average
     const average = await prisma.score.aggregate({
       _avg: {
         score: true,
@@ -317,7 +365,7 @@ const submitQuiz = async (req, res) => {
       },
     });
 
-    // adding newly calculated average to quiz table
+    // adding newly calculated average and winner(s) to quiz table
     await prisma.quiz.update({
       where: {
         id: Number(id),
@@ -325,11 +373,12 @@ const submitQuiz = async (req, res) => {
       data: {
         // eslint-disable-next-line no-underscore-dangle
         avgScore: average._avg.score,
+        winner: winnerUserNames,
       },
     });
 
     return res.status(200).json({
-      msg: `${userDetails.username} has successfully participated in ${questions.name}`,
+      msg: `${userDetails.username} has successfully participated in ${quiz.name}`,
       Score: score,
       // eslint-disable-next-line no-underscore-dangle
       Quiz_Average: average._avg.score.toFixed(2),
