@@ -1,39 +1,58 @@
+/**
+ * Author: Greg Seal
+ * Date: October 2022
+ * Course:  Intermediate app development
+ *
+ * For handling all functions regarding quizzes
+ *
+ * getQuizzes: Finds and displays all quizzes to users, applying appropriate queries
+ * getTimeQuizzes: Finds and displays quizzes based on time frame entered as URL param
+ * createQuiz: Creates quiz from external API based on information contained in the request by user
+ * deleteQuiz: Removes quiz from database based on request params
+ * takeQuiz: Finds and displays formatted version of quiz for user to participate
+ * submitQuiz:  Takes array of answers from user and compares to correct answers stored in quiz.
+ *              Adds entry to score table, generates quiz average score and adds to quiz record.
+ *              Calculates current highest score for quiz and ads username as winner of quiz.
+ * rateQuiz:  Allows user to add rating to quiz.  Adds rating to table, calculates average quiz
+ *            rating and ads to quiz record
+ */
+
 import axios from 'axios';
-// import { response } from 'express';
 import prisma from '../../utils/prisma.js';
 import { fieldValidation } from '../../utils/validation.js';
 import authCheck from '../../utils/authorization.js';
-import { getResource, deleteResource, getResources, updateResource, catchReturn } from './base.js';
+import { deleteResource, getResources, catchReturn } from './base.js';
 
 const tableName = 'quiz';
 
+// creating query to add to quiz requests
 const include = {
-  include: {
-    questions: true,
-    scores: true,
-    rating: true,
-  },
+  questions: true,
+  scores: true,
+  rating: true,
 };
 
-const getQuiz = (req, res) => {
-  getResource(req, res, prisma.quiz, tableName, include);
-};
+// const getQuiz = (req, res) => {
+//   getResource(req, res, prisma.quiz, tableName, include);
+// };
 
+/**
+ * Finds and displays all quizzes to user
+ * @param {Request} req
+ * @param {Response} res
+ */
 const getQuizzes = (req, res) => {
   getResources(req, res, prisma.quiz, tableName, include);
 };
 
+//  creating queries to add to time based requests
 const past = {
   where: {
     end_date: {
       lt: new Date(),
     },
   },
-  include: {
-    questions: true,
-    scores: true,
-    rating: true,
-  },
+  include,
 };
 
 const current = {
@@ -45,11 +64,7 @@ const current = {
       lt: new Date(),
     },
   },
-  include: {
-    questions: true,
-    scores: true,
-    rating: true,
-  },
+  include,
 };
 
 const future = {
@@ -58,13 +73,16 @@ const future = {
       gte: new Date(),
     },
   },
-  include: {
-    questions: true,
-    scores: true,
-    rating: true,
-  },
+  include,
 };
 
+/**
+ * Finds and displays quizzes based on param entered in URL
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 200
+ * @returns JSON error message if status = 500
+ */
 const getTimeQuizzes = (req, res) => {
   const { timeFrame } = req.params;
   if (timeFrame === 'past') {
@@ -79,7 +97,6 @@ const getTimeQuizzes = (req, res) => {
 };
 
 const createQuiz = async (req, res) => {
-  // createResource(req, res, prisma.quiz, tableName);
   try {
     const { id } = req.user;
 
@@ -180,10 +197,6 @@ const createQuiz = async (req, res) => {
   } catch (err) {
     return catchReturn(res, err);
   }
-};
-
-const updateQuiz = (req, res) => {
-  updateResource(req, res, prisma.quiz, tableName);
 };
 
 const deleteQuiz = (req, res) => {
@@ -318,7 +331,7 @@ const submitQuiz = async (req, res) => {
       },
     });
 
-    //  finding current leader to add as quizz winner
+    //  finding current leader to add as quiz winner
     const scores = await prisma.score.findMany({
       where: {
         quizID: Number(id),
@@ -340,11 +353,9 @@ const submitQuiz = async (req, res) => {
         winnerIDs.push(scoreRecord.userId);
       }
     });
-    console.log('winnerIDs', winnerIDs);
 
     //  collecting user IDs so that we can record names into database
     const allUsers = await prisma.user.findMany();
-    console.log('allUsers', allUsers);
     let winnerUserNames = [];
     allUsers.forEach((user) => {
       if (winnerIDs.includes(user.id)) {
@@ -352,10 +363,10 @@ const submitQuiz = async (req, res) => {
       }
     });
 
-    //  formatiing usernames into string to place into database record
+    //  formatting usernames into string to place into database record
     winnerUserNames = winnerUserNames.toString().replace(',', ', ');
 
-    //  Calculating quizz average
+    //  Calculating quiz average
     const average = await prisma.score.aggregate({
       _avg: {
         score: true,
@@ -458,11 +469,10 @@ const rateQuiz = async (req, res) => {
 // Ask about why this one is being combined to one line
 // prettier-ignore
 export {
-  getQuiz,
+  // getQuiz,
   getQuizzes,
   getTimeQuizzes,
   createQuiz,
-  updateQuiz,
   deleteQuiz,
   submitQuiz,
   takeQuiz,

@@ -96,7 +96,9 @@ const getResources = async (req, res, model, tableName, include) => {
     const resources = !include ?
       await model.findMany() :
       await model.findMany(
-        include,
+        {
+          include,
+        },
       );
 
     // if array is empty

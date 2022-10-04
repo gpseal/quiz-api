@@ -1,16 +1,13 @@
 import bcryptjs from 'bcryptjs';
 import prisma from '../../utils/prisma.js';
 import { checkCredentials } from '../../utils/validation.js';
-import { seedUsers, getResource, getResources, deleteResource, updateResource } from './base.js';
+import { seedUsers, deleteResource } from './base.js';
 import { catchReturn, notAuthorized, getUserInfo } from '../../utils/misc.js';
 
-const tableName = 'users';
 // prettier-ignore
 const usersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/basic-users.json";
 // prettier-ignore
 const adminUsersURL = "https://gist.githubusercontent.com/gpseal/8b0d738441d197623aa4ed1dab7027ef/raw/7f4aa9ee74e16ba0f0777f2cc23ab95818be51bb/admin-users.json";
-
-const table = prisma.user;
 
 const getUsers = async (req, res) => {
   try {

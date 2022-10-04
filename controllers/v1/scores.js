@@ -10,12 +10,8 @@ import {
 
 const tableName = 'score';
 
-const include = {
-  questions: true,
-};
-
 const getScore = (req, res) => {
-  getResource(req, res, prisma.score, tableName, include);
+  getResource(req, res, prisma.score, tableName);
 };
 
 const getScores = (_, res) => {

@@ -10,12 +10,8 @@ import {
 
 const tableName = 'rating';
 
-const include = {
-  questions: true,
-};
-
 const getRating = (req, res) => {
-  getResource(req, res, prisma.rating, tableName, include);
+  getResource(req, res, prisma.rating, tableName);
 };
 
 const getRatings = (_, res) => {

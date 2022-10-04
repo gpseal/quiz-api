@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
-import express, { urlencoded, json } from 'express';
+import express, { urlencoded, json, Router } from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-
+import listEndpoints from 'express-list-endpoints';
 /**
  * You will create the routes for institutions and departments later
  */
@@ -45,6 +45,14 @@ app.use(compression());
 app.use(cacheRoute);
 app.use(limit); //  applies rate-limit to all requests
 
+const getEndPoints = (req, res) => {
+  const endPoints = listEndpoints(app);
+  res.status(200).send({
+    endPoints,
+  });
+};
+
+app.get(`/${BASE_URL}/${CURRENT_VERSION}/`, getEndPoints);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/auth`, auth);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/categories`, authRoute, categories);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/quizzes`, authRoute, quizzes);
