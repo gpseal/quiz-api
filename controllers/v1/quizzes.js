@@ -22,6 +22,7 @@ import prisma from '../../utils/prisma.js';
 import { fieldValidation } from '../../utils/validation.js';
 import authCheck from '../../utils/authorization.js';
 import { deleteResource, getResources, catchReturn } from './base.js';
+import { getUserInfo } from '../../utils/misc.js';
 
 const tableName = 'quiz';
 
@@ -84,6 +85,7 @@ const future = {
  * @returns JSON error message if status = 500
  */
 const getTimeQuizzes = (req, res) => {
+  //  adjusts queries based on time frame from URL params
   const { timeFrame } = req.params;
   if (timeFrame === 'past') {
     getResources(req, res, prisma.quiz, tableName, past);
@@ -96,16 +98,26 @@ const getTimeQuizzes = (req, res) => {
   }
 };
 
+/**
+ * Creates quiz after Validating data and checking user authorisation
+ * Populates quiz with questions / answers from external API
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 401, 400, 201
+ * @returns JSON error message if status = 500
+ */
 const createQuiz = async (req, res) => {
   try {
     const { id } = req.user;
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(id),
-      },
-    });
+    const user = getUserInfo(id);
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: Number(id),
+    //   },
+    // });
 
+    //  checking user is authorised to create quiz
     if (authCheck(user, 'ADMIN_USER', 'SUPER_ADMIN_USER') !== true) {
       return res.status(401).json({
         msg: `not authorised to perform this action `,
@@ -133,8 +145,8 @@ const createQuiz = async (req, res) => {
       });
     }
 
+    //  checking validation of quiz name
     const alphaOnly = /^[A-Za-z]+$/;
-
     if (fieldValidation('quiz name', req.body.name, 5, 30, alphaOnly, 'alpha characters only')) {
       return res.status(400).json({
         msg: fieldValidation('quiz name', req.body.name, 5, 30, alphaOnly, 'alpha characters only'),
@@ -161,7 +173,8 @@ const createQuiz = async (req, res) => {
 
     const questions = response.data.results;
 
-    //  finding quiz id to associate questions with (highest ID)
+    //  finding quiz id to associate questions with
+    //  (highest ID, which will be the quiz just created)
     const latestEntry = await prisma.quiz.findMany({
       orderBy: [
         {
@@ -172,7 +185,7 @@ const createQuiz = async (req, res) => {
 
     const quizid = latestEntry[0].id;
 
-    //  adding questions to newly created quiz
+    //  adding questions and associating with newly created quiz
     await prisma.questions.create({
       data: {
         quizid,
@@ -199,29 +212,44 @@ const createQuiz = async (req, res) => {
   }
 };
 
+/**
+ * Deletes quiz after checking user authorisation
+ * @param {Request} req
+ * @param {Response} res
+ */
 const deleteQuiz = (req, res) => {
   deleteResource(req, res, prisma.quiz, tableName, authCheck, 'SUPER_ADMIN_USER');
 };
 
-// allows users to participate in quizzes within quiz dates
+/**
+ * allows users to participate in quizzes
+ * Checks user authorisation, checks if quiz is currently available
+ * Formats quiz to display to users
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 401, 400, 200
+ * @returns JSON error message if status = 500
+ */
 const takeQuiz = async (req, res) => {
   try {
     const { id } = req.params;
     const { id: userID } = req.user;
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(userID),
-      },
-    });
+    const user = getUserInfo(userID);
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: Number(userID),
+    //   },
+    // });
 
-    // checking user authentication
+    // checking user authorisation
     if (authCheck(user, 'BASIC_USER') !== true) {
       return res.status(401).json({
         msg: `not authorised to perform this action `,
       });
     }
 
+    //  getting quiz to display to user
     const quiz = await prisma.quiz.findUnique({
       where: {
         id: Number(id),
@@ -231,6 +259,7 @@ const takeQuiz = async (req, res) => {
       },
     });
 
+    //  Checking if quiz is currently available (based on dates)
     if (Date.now() < quiz.start_date) {
       return res.status(200).json({
         msg: `Quiz has not yet begun`,
@@ -243,23 +272,27 @@ const takeQuiz = async (req, res) => {
       });
     }
 
-    //  fomatting quiz to display only questions & shuffled answers
+    //  formatting quiz to display only questions & shuffled answers
     const formattedQuestions = [];
 
     quiz.questions[0].questions.forEach((question) => {
       const quest = question.question;
-      //  creating array to shuffle and display all possible answers
+      //  creating array of correct and incorrect answers
       const answers = question.incorrect_answers;
       answers.push(question.correct_answer);
+      //  shuffles array of answers
       const shuffledQuestions = answers.sort((a, b) => 0.5 - Math.random());
+      //  creating object containing questions and shuffled answers
       const questionList = {
         question: quest,
         answers: shuffledQuestions,
       };
+      //  adding object to array
       formattedQuestions.push(questionList);
     });
 
-    return res.json({
+    // displaying formatted questions to user
+    return res.status(200).json({
       questions: formattedQuestions,
     }); // displays record
   } catch (err) {
@@ -267,16 +300,28 @@ const takeQuiz = async (req, res) => {
   }
 };
 
+/**
+ * allows users to submit answers for quizzes
+ * Checks user authorisation, checks if quiz is currently available
+ * Checks that all answers have been submitted
+ * Compares user answers with corrects answers to produce a score
+ * Calculates total average score of quiz
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 401, 400, 200
+ * @returns JSON error message if status = 500
+ */
 const submitQuiz = async (req, res) => {
   try {
     //  Finding user details
     const { id: userID } = req.user;
-    const userDetails = await prisma.user.findUnique({
-      where: {
-        id: Number(userID),
-      },
-      // finds record using ID from URL params
-    });
+    const userDetails = getUserInfo(userID);
+    // const userDetails = await prisma.user.findUnique({
+    //   where: {
+    //     id: Number(userID),
+    //   },
+    //   // finds record using ID from URL params
+    // });
 
     if (authCheck(userDetails, 'BASIC_USER') !== true) {
       return res.status(401).json({
@@ -399,16 +444,24 @@ const submitQuiz = async (req, res) => {
   }
 };
 
+/**
+ * allows users to submit a quiz rating, calculates quiz average
+ * and adds to quiz table
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 401, 400, 200
+ * @returns JSON error message if status = 500
+ */
 const rateQuiz = async (req, res) => {
   try {
     const { id } = req.user;
     const { id: quizID } = req.params;
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(id),
-      },
-    });
+    // const user = await prisma.user.findUnique({
+    //   where: {
+    //     id: Number(id),
+    //   },
+    // });
 
     const quiz = await prisma.quiz.findFirst({
       where: {
@@ -450,10 +503,6 @@ const rateQuiz = async (req, res) => {
         avgScore: average._avg.rating,
       },
     });
-    /**
-     * creates record with req body plus ID of user creating it
-     * which is added to request in middleware
-     */
 
     const newResources = await prisma.rating.findMany(); // for displaying all records
 
@@ -466,10 +515,8 @@ const rateQuiz = async (req, res) => {
   }
 };
 
-// Ask about why this one is being combined to one line
 // prettier-ignore
 export {
-  // getQuiz,
   getQuizzes,
   getTimeQuizzes,
   createQuiz,
