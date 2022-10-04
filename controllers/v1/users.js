@@ -17,7 +17,6 @@ const getUsers = async (req, res) => {
     const { id: userID } = req.user;
     // getting user record
     const user = await getUserInfo(userID);
-
     if (user.role === 'BASIC_USER') return notAuthorized(res);
 
     let users = await prisma.user.findMany();
@@ -138,7 +137,7 @@ const updateUser = async (req, res) => {
     delete record.password;
 
     return res.json({
-      msg: `${tableName} with the id: ${recordID} successfully updated`,
+      msg: `User ${user.username} successfully updated`,
       data: record, // displays new record data
     });
   } catch (err) {

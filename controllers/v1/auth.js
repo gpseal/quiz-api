@@ -1,16 +1,33 @@
+/**
+ * Author: Greg Seal
+ * Date: October 2022
+ * Course:  Intermediate app development
+ *
+ * For handling registration and login functions
+ *
+ * register: Checks credentials, Registers new users and stores data
+ * login: Compares login details to registered users, if valid,
+ * creates JWT for authentication, returns token for use in future requests
+ * logout: Logs out user, stores existing JWT token within database and eliminates
+ * it from future use.  Deletes stored tokens that are older than one hour
+ */
+
 /* eslint-disable no-plusplus */
 /* eslint-disable camelcase */
-import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { checkCredentials } from '../../utils/validation.js';
-import { seedUsers } from './base.js';
-import authCheck from '../../utils/authorization.js';
-import { catchReturn, notAuthorized, getUserInfo } from '../../utils/misc.js';
 
 const prisma = new PrismaClient();
 
+/**
+ * This function registers a new user once all checks have been passed
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 400, 409, 201
+ * @returns JSON error message if status = 500
+ */
 const register = async (req, res) => {
   try {
     // prettier-ignore
@@ -22,20 +39,13 @@ const register = async (req, res) => {
       role,
       confirmPassword } = req.body;
 
-    // if (role === "ADMIN_USER" || role === "SUPER_ADMIN_USER") {
-    //   return res.status(403).json({
-    //     msg: 'You are not authorized to perform this action',
-    //   });
-    // }
-
-    //  checking that inputs are all correct
+    //  checking that inputs are all structures accordingly
     if (checkCredentials(req.body)) {
       return res.status(400).json({
         msg: checkCredentials(req.body),
       });
     }
 
-    // console.log(first_name);
     // Check for unique email and username
     let user = await prisma.user.findFirst({
       where: {
@@ -50,7 +60,7 @@ const register = async (req, res) => {
       },
     });
 
-    // Testing which item was not unique
+    // If user exists, testing which item was not unique and returning appropriate message
     if (user) {
       if (username === user.username) {
         return res.status(409).json({
@@ -62,6 +72,7 @@ const register = async (req, res) => {
       });
     }
 
+    // setting image of user with username as differentiator
     const picture = `https://avatars.dicebear.com/api/avataaars/${username}.svg`;
 
     /**
@@ -77,6 +88,7 @@ const register = async (req, res) => {
      */
     const hashedPassword = await bcryptjs.hash(password, salt);
 
+    //  storing user credentials in the prisma database
     user = await prisma.user.create({
       data: {
         first_name,
@@ -96,10 +108,12 @@ const register = async (req, res) => {
      */
     delete user.password;
 
+    //  Returns message if user has been successfully stored, displays user data
     return res.status(201).json({
       msg: 'User successfully registered',
       data: user,
     });
+    //  returns error if there was an error registering user
   } catch (err) {
     return res.status(500).json({
       msg: err.message,
@@ -107,19 +121,41 @@ const register = async (req, res) => {
   }
 };
 
+/**
+ * This function logs in a user by comparing posted user credentials
+ * with existing user profiles already stored in the database.
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 200, 401
+ * @returns JSON error message if status = 500
+ */
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
 
-    const user = await prisma.user.findUnique({
+    //  checking for matching username or email from request body
+    const user = await prisma.user.findFirst({
       where: {
-        email,
+        OR: [
+          {
+            email,
+          },
+          {
+            username,
+          },
+        ],
       },
     });
 
+    //  return appropriate error if there is no matching record
     if (!user) {
+      if (email) {
+        return res.status(401).json({
+          msg: 'Invalid email',
+        });
+      }
       return res.status(401).json({
-        msg: 'Invalid email',
+        msg: 'Invalid username',
       });
     }
     /**
@@ -144,7 +180,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
-        name: user.name,
+        userName: user.username,
       },
       JWT_SECRET,
       {
@@ -163,6 +199,17 @@ const login = async (req, res) => {
   }
 };
 
+/**
+ * This function logs out a user by checking for a valid token in the request
+ * and storing it in the database, making it unusable in future requests.
+ * In addition, the function will check the database for existing tokens older
+ * than one hour and delete accordingly (as the token will be expired).
+ * @param {Request} req
+ * @param {Response} res
+ * @returns JSON message if status = 201
+ * @returns JSON message if status = 403
+ * @returns JSON error message if status = 500
+ */
 const logout = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -187,7 +234,7 @@ const logout = async (req, res) => {
     const expTime = new Date();
     expTime.setTime(expTime.getTime() - 1 * 60 * 60 * 1000);
 
-    // removing saved tokens that are older than expire time (one hr)
+    // removing saved tokens that are older than expire time (1 hr)
     await prisma.token.deleteMany({
       where: {
         createdAt: {
@@ -209,7 +256,7 @@ const logout = async (req, res) => {
       msg: `${user.username} successfully logged out`,
     });
   } catch (err) {
-    return res.status(500).json({
+    return res.status(498).json({
       msg: 'invalid token',
     });
   }

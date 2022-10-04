@@ -35,18 +35,20 @@ const authRoute = async (req, res, next) => {
     /**
      * Set Request's user property to the authenticated user
      */
+
     req.user = payload;
 
     //  Checks to see if token exists in database
     const checkToken = await prisma.token.findFirst({
       where: {
         token,
-      }, // finds record using ID from URL params
+      },
     });
 
-    //  If token exists, does not allow its use
+    //  If token exists in the database, it must have been added after a user logged out,
+    //  thus making it invalid
     if (checkToken) {
-      return res.status(403).json({
+      return res.status(498).json({
         msg: 'Invalid Token',
       });
     }

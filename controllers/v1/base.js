@@ -1,19 +1,52 @@
+/**
+ * Author: Greg Seal
+ * Date: October 2022
+ * Course:  Intermediate app development
+ *
+ * Base functions for handling various user requests
+ *
+ * getResource: Gets and displays single resource
+ * getResources: Get and display a group of resources
+ * deleteResource: Authenticates user and deletes a single resource
+ * createResource: Creates a single resource
+ * updateResource: Updates a single resource
+ * seedData: Seeds data from a specified URL
+ * seedUsers: Authenticates user and seeds user accounts from a specified URL
+ */
+
 import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import prisma from '../../utils/prisma.js';
 import { checkCredentials } from '../../utils/validation.js';
 import authCheck from '../../utils/authorization.js';
 
+/**
+ * This function returns a 500 status and error message
+ * @param {Request} req
+ * @param {Error} err
+ * @returns JSON error message if status = 500
+ */
 const catchReturn = (res, err) => {
   res.status(500).json({
     msg: err.message,
   });
 };
 
-// single resource
+/**
+ * This function finds and displays a single resource based on req params
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Property} model references prisma model
+ * @param {String} tableName name of the table being referenced
+ * @param {Object} include prisma query parameters
+ * @returns JSON message if status = 200
+ * @returns JSON error message if status = 500
+ */
 const getResource = async (req, res, model, tableName, include) => {
   try {
-    const { id } = req.params; // d
+    //  getting resource id from req params
+    const { id } = req.params;
+    //  if "include" exists, apply to prisma query
     const resource = !include
       ? await model.findUnique({
           where: {
@@ -27,25 +60,34 @@ const getResource = async (req, res, model, tableName, include) => {
           include,
         });
 
-    // checks that record exists
+    // checks that record exists, returns error if not
     if (!resource) {
       return res.status(200).json({
         msg: `No ${tableName} with the id: ${id} found`,
       });
     }
 
-    return res.json({
+    // displays record if it exists
+    return res.status(200).json({
       data: resource,
-    }); // displays record
+    });
   } catch (err) {
     return catchReturn(res, err);
   }
 };
 
-// all resources
+/**
+ * Finds and displays all records in a table
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Property} model references prisma model
+ * @param {String} tableName name of the table being referenced
+ * @param {Object} include prisma query parameters
+ * @returns JSON message if status = 200
+ * @returns JSON error message if status = 500
+ */
 const getResources = async (req, res, model, tableName, include) => {
   try {
-    console.log('get all');
     /**
      * The findMany function returns all records
      */
@@ -72,7 +114,16 @@ const getResources = async (req, res, model, tableName, include) => {
   }
 };
 
-// delete single resource
+/**
+ * Finds and deletes a single resource based on req params
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Property} model references prisma model
+ * @param {String} tableName name of the table being referenced
+ * @param {Object} include prisma query parameters
+ * @returns JSON message if status = 200
+ * @returns JSON error message if status = 500
+ */
 const deleteResource = async (req, res, model, tableName, userType) => {
   try {
     const userID = req.user.id;
@@ -111,7 +162,7 @@ const deleteResource = async (req, res, model, tableName, userType) => {
       }, // deletes record that matches ID
     });
 
-    return res.json({
+    return res.status(200).json({
       msg: `${tableName} with the id ${id} successfully deleted`,
     });
   } catch (err) {
@@ -119,14 +170,17 @@ const deleteResource = async (req, res, model, tableName, userType) => {
   }
 };
 
-// Create single resource
+/**
+ * Creates a single database resource
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Property} model references prisma model
+ * @param {String} tableName name of the table being referenced
+ * @returns JSON message if status = 201
+ * @returns JSON error message if status = 500
+ */
 const createResource = async (req, res, model, tableName) => {
   try {
-    /**
-     * The create function creates a new record using the required fields,
-     * i.e., name, region and country
-     */
-
     // Get the authenticated user's id from the Request's user property
     const { id } = req.user;
 
@@ -135,21 +189,6 @@ const createResource = async (req, res, model, tableName) => {
         id: Number(id),
       },
     });
-
-    /**
-     * Now you will know which authenticated user created which institution
-     */
-
-    /**
-     * If the authenticated user is not an admin, they can
-     * not create a new record
-     */
-    // if ((user.role !== "ADMIN_USER") && (user.role !== "SUPER_ADMIN_USER")) {
-    //   return res.status(403).json({
-    //     msg: "Not authorized to access this route",
-    //   });
-    // }
-    // console.log(first)
 
     await model.create({
       data: {
@@ -173,20 +212,18 @@ const createResource = async (req, res, model, tableName) => {
   }
 };
 
+/**
+ * Updates a single database record
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Property} model references prisma model
+ * @param {String} tableName name of the table being referenced
+ * @returns JSON message if status = 201
+ * @returns JSON error message if status = 500
+ */
 const updateResource = async (req, res, model, tableName) => {
   try {
-    // const userID = req.user.id;
-
-    // const user = await prisma.user.findUnique({ where: { id: Number(userID) } });
-
-    // if ((user.role !== "ADMIN_USER") && (user.role !== "SUPER_ADMIN_USER")) {
-    //   return res.status(403).json({
-    //     msg: "Not authorized to access this route",
-    //   });
-    // }
-
     const { id } = req.params; // defines record to be updated with URL params
-    // payload = req.body; // populates payload object with properties of PUT request
 
     let resource = await model.findUnique({
       // finds record using ID from URL params
@@ -222,6 +259,18 @@ const updateResource = async (req, res, model, tableName) => {
   }
 };
 
+/**
+ * Seeds data from a specified URL
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Property} model references prisma model
+ * @param {String} tableName name of the table being referenced
+ * @param {String} URL url to seed data from
+ * @param {String} userType1 user type to be checked for authorization
+ * @param {String} userType2 user type to be checked for authorization
+ * @returns JSON message if status = 201
+ * @returns JSON error message if status = 500
+ */
 const seedData = async (req, res, model, tableName, URL, userType1, userType2) => {
   try {
     const { id: userID } = req.user;
@@ -232,15 +281,16 @@ const seedData = async (req, res, model, tableName, URL, userType1, userType2) =
       },
     });
 
+    //  collection data from URL
     const response = await axios.get(URL);
     // eslint-disable-next-line camelcase
     const { trivia_categories } = response.data; // assigning api data
 
-    // Insert documents into the collection (from api axios get)
+    // Insert documents into the collection
     await model.createMany({
       // eslint-disable-next-line camelcase
       data: trivia_categories,
-    }); // check this, should it be data:data?
+    });
 
     return res.status(201).json({
       msg: `${tableName}s successfully created`,
@@ -252,10 +302,19 @@ const seedData = async (req, res, model, tableName, URL, userType1, userType2) =
   }
 };
 
+/**
+ * Authenticates requesting user and Seeds user data from a specified URL
+ * @param {Request} req
+ * @param {Response} res
+ * @param {String} usersURL url to seed data from
+ * @param {String} userType1 user type to be checked for authorization
+ * @param {String} userType2 user type to be checked for authorization
+ * @returns JSON message if status = 201
+ * @returns JSON error message if status = 500
+ */
 const seedUsers = async (req, res, usersURL, userType1, userType2) => {
   try {
     const { id } = req.user;
-    // // const userID = req.user.id;
     const user = await prisma.user.findUnique({
       where: {
         id,
@@ -269,19 +328,11 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       });
     }
 
+    //  collection data from specified URL
     const response = await axios.get(usersURL);
     const { data: userData } = response; // assigning api data
-    let { role } = userData[0];
-    if (!role) {
-      role = 'BASIC_USER';
-    }
 
-    await prisma.user.deleteMany({
-      where: {
-        role,
-      },
-    });
-
+    //  checking that user data credentials are correct
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < userData.length; i++) {
       if (checkCredentials(userData[i])) {
@@ -291,6 +342,21 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       }
     }
 
+    //  checking role of users to be seeded
+    let { role } = userData[0];
+    //  if no role specified, default to BASIC_USER
+    if (!role) {
+      role = 'BASIC_USER';
+    }
+
+    //  removing existing users based on role
+    await prisma.user.deleteMany({
+      where: {
+        role,
+      },
+    });
+
+    //  salting passwords of data to be inserted
     const data = await Promise.all(
       userData.map(async (userEntry) => {
         const salt = await bcryptjs.genSalt();
@@ -302,20 +368,22 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
       }),
     );
 
+    //  Inserting data into database
     await prisma.user.createMany({
       data,
     });
 
+    //  Removing passwords from data to be displayed
     data.forEach((userEntry) => {
       delete userEntry.password;
     });
 
+    //  Displaying data
     return res.status(200).json({
       msg: 'Users successfully added',
       data,
     });
   } catch (err) {
-    console.log('err', err);
     return catchReturn(res, err);
   }
 };
