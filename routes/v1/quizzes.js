@@ -1,3 +1,26 @@
+/**
+ * Author: Greg Seal
+ * Date: October 2022
+ * Course:  Intermediate app development
+ *
+ * Sets quiz based routes and functions associated with each,
+ * exports router object for use in app.js
+ *
+ * Routes:
+ * /:
+ * get: get all quiz records, post: create new quiz record
+ *
+ * /:id:
+ * get: get quiz record specified by id param
+ * delete: delete quiz record specified by id param
+ *
+ * /:id/participate: post: submit quiz user answers for analysis
+ *
+ * /:id/rate: post: creates new rating record
+ *
+ * /get/:timeFrame: get: get all quiz records based on time frame specified by timeFrame param
+ */
+
 import { Router } from 'express';
 
 import {

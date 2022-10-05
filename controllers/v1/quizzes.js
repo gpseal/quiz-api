@@ -110,12 +110,7 @@ const createQuiz = async (req, res) => {
   try {
     const { id } = req.user;
 
-    const user = getUserInfo(id);
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: Number(id),
-    //   },
-    // });
+    const user = await getUserInfo(id);
 
     //  checking user is authorised to create quiz
     if (authCheck(user, 'ADMIN_USER', 'SUPER_ADMIN_USER') !== true) {
@@ -235,12 +230,7 @@ const takeQuiz = async (req, res) => {
     const { id } = req.params;
     const { id: userID } = req.user;
 
-    const user = getUserInfo(userID);
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: Number(userID),
-    //   },
-    // });
+    const user = await getUserInfo(userID);
 
     // checking user authorisation
     if (authCheck(user, 'BASIC_USER') !== true) {
@@ -315,13 +305,7 @@ const submitQuiz = async (req, res) => {
   try {
     //  Finding user details
     const { id: userID } = req.user;
-    const userDetails = getUserInfo(userID);
-    // const userDetails = await prisma.user.findUnique({
-    //   where: {
-    //     id: Number(userID),
-    //   },
-    //   // finds record using ID from URL params
-    // });
+    const userDetails = await getUserInfo(userID);
 
     if (authCheck(userDetails, 'BASIC_USER') !== true) {
       return res.status(401).json({

@@ -17,7 +17,7 @@
 import axios from 'axios';
 import bcryptjs from 'bcryptjs';
 import prisma from '../../utils/prisma.js';
-import { checkCredentials } from '../../utils/validation.js';
+import { checkInputs } from '../../utils/validation.js';
 import authCheck from '../../utils/authorization.js';
 
 /**
@@ -337,9 +337,9 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
     //  checking that user data credentials are correct
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < userData.length; i++) {
-      if (checkCredentials(userData[i])) {
+      if (checkInputs(userData[i])) {
         return res.status(400).json({
-          msg: checkCredentials(userData[i]),
+          msg: checkInputs(userData[i]),
         });
       }
     }

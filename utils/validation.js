@@ -7,27 +7,20 @@ const fieldValidation = (fieldName, name, minLength, MaxLength, type, mssge) => 
   }
 };
 
-const checkCredentials = (credentials) => {
+const checkInputs = (inputs) => {
   const passwordFormat = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/;
   const emailFormat = /^([A-Za-z0-9_.-]+)@([\da-zA-Z.-]+)\.([a-z.]{2,5})$/;
   const alphaOnly = /^[A-Za-z]+$/;
   const alphaNumeric = /^[0-9a-zA-Z]+$/;
 
   // Checking correct lengths of inputs
-  if (credentials.first_name) {
+  if (inputs.first_name) {
     if (
-      fieldValidation(
-        'first name',
-        credentials.first_name,
-        2,
-        50,
-        alphaOnly,
-        'alpha characters only',
-      )
+      fieldValidation('first name', inputs.first_name, 2, 50, alphaOnly, 'alpha characters only')
     ) {
       return fieldValidation(
         'first name',
-        credentials.first_name,
+        inputs.first_name,
         2,
         50,
         alphaOnly,
@@ -36,13 +29,11 @@ const checkCredentials = (credentials) => {
     }
   }
 
-  if (credentials.last_name) {
-    if (
-      fieldValidation('last name', credentials.last_name, 2, 50, alphaOnly, 'alpha characters only')
-    ) {
+  if (inputs.last_name) {
+    if (fieldValidation('last name', inputs.last_name, 2, 50, alphaOnly, 'alpha characters only')) {
       return fieldValidation(
         'last name',
-        credentials.last_name,
+        inputs.last_name,
         2,
         50,
         alphaOnly,
@@ -51,11 +42,11 @@ const checkCredentials = (credentials) => {
     }
   }
 
-  if (credentials.email) {
+  if (inputs.email) {
     if (
       fieldValidation(
         'email',
-        credentials.email,
+        inputs.email,
         0,
         50,
         emailFormat,
@@ -64,7 +55,7 @@ const checkCredentials = (credentials) => {
     ) {
       return fieldValidation(
         'email',
-        credentials.email,
+        inputs.email,
         0,
         50,
         emailFormat,
@@ -73,11 +64,11 @@ const checkCredentials = (credentials) => {
     }
   }
 
-  if (credentials.username) {
+  if (inputs.username) {
     if (
       fieldValidation(
         'username',
-        credentials.username,
+        inputs.username,
         5,
         10,
         alphaNumeric,
@@ -86,7 +77,7 @@ const checkCredentials = (credentials) => {
     ) {
       return fieldValidation(
         'username',
-        credentials.username,
+        inputs.username,
         5,
         10,
         alphaNumeric,
@@ -95,11 +86,11 @@ const checkCredentials = (credentials) => {
     }
   }
 
-  if (credentials.password) {
+  if (inputs.password) {
     if (
       fieldValidation(
         'password',
-        credentials.password,
+        inputs.password,
         5,
         12,
         passwordFormat,
@@ -108,7 +99,7 @@ const checkCredentials = (credentials) => {
     ) {
       return fieldValidation(
         'password',
-        credentials.password,
+        inputs.password,
         5,
         12,
         passwordFormat,
@@ -117,17 +108,17 @@ const checkCredentials = (credentials) => {
     }
   }
 
-  if (credentials.confirmPassword) {
-    if (credentials.confirmPassword !== credentials.password) {
+  if (inputs.confirmPassword) {
+    if (inputs.confirmPassword !== inputs.password) {
       return 'passwords do not match';
     }
   }
 
-  if (credentials.username) {
-    if (credentials.username !== credentials.email.split('@')[0]) {
+  if (inputs.username) {
+    if (inputs.username !== inputs.email.split('@')[0]) {
       return 'email prefix must match username ';
     }
   }
 };
 
-export { fieldValidation, checkCredentials };
+export { fieldValidation, checkInputs };

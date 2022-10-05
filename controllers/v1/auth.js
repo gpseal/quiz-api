@@ -17,7 +17,7 @@
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { checkCredentials } from '../../utils/validation.js';
+import { checkInputs } from '../../utils/validation.js';
 
 const prisma = new PrismaClient();
 
@@ -40,13 +40,13 @@ const register = async (req, res) => {
       confirmPassword } = req.body;
 
     //  checking that inputs are all structures accordingly
-    if (checkCredentials(req.body)) {
+    if (checkInputs(req.body)) {
       return res.status(400).json({
-        msg: checkCredentials(req.body),
+        msg: checkInputs(req.body),
       });
     }
 
-    // Check for unique email and username
+    // Check for already existing email and username
     let user = await prisma.user.findFirst({
       where: {
         OR: [
