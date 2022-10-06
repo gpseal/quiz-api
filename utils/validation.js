@@ -1,5 +1,5 @@
 const fieldValidation = (fieldName, name, minLength, MaxLength, type, mssge) => {
-  if (name.length < minLength || name.length > MaxLength) {
+  if (name.length <= minLength || name.length > MaxLength) {
     return `${fieldName} length must be more than ${minLength} and less than ${MaxLength} characters,`;
   }
   if (name.match(type) === null) {

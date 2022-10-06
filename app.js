@@ -64,3 +64,5 @@ app.use(`/${BASE_URL}/${CURRENT_VERSION}/users`, authRoute, users);
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
+
+export default app;

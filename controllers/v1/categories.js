@@ -39,6 +39,9 @@ const deleteCategory = (req, res) => {
 const URL = 'https://opentdb.com/api_category.php';
 
 const seedCategories = async (req, res) => {
+  await prisma.category.deleteMany({
+    // empty
+  });
   seedData(req, res, prisma.category, tableName, URL);
   // try {
   //   const response = await axios.get('https://opentdb.com/api_category.php');
