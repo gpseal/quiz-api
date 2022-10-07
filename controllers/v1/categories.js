@@ -42,26 +42,7 @@ const seedCategories = async (req, res) => {
   await prisma.category.deleteMany({
     // empty
   });
-  seedData(req, res, prisma.category, tableName, URL);
-  // try {
-  //   const response = await axios.get('https://opentdb.com/api_category.php');
-  //   const data = response.data.trivia_categories; // assigning api data
-
-  //   await prisma.category.createMany({
-  //     data,
-  //   }); // check this, should it be data:data?
-
-  //   const newResources = await prisma.category.findMany();
-
-  //   return res.status(201).json({
-  //     msg: `Categories successfully created`,
-  //     data: newResources,
-  //   });
-  // } catch (err) {
-  //   return res.status(500).json({
-  //     msg: err.message,
-  //   });
-  // }
+  await seedData(req, res, prisma.category, tableName, URL);
 };
 
 export {

@@ -27,15 +27,13 @@ import { getUserInfo } from '../../utils/misc.js';
 const tableName = 'quiz';
 
 // creating query to add to quiz requests
-const include = {
-  questions: true,
-  scores: true,
-  rating: true,
+const baseQuery = {
+  include: {
+    questions: true,
+    scores: true,
+    rating: true,
+  },
 };
-
-// const getQuiz = (req, res) => {
-//   getResource(req, res, prisma.quiz, tableName, include);
-// };
 
 /**
  * Finds and displays all quizzes to user
@@ -43,7 +41,7 @@ const include = {
  * @param {Response} res
  */
 const getQuizzes = (req, res) => {
-  getResources(req, res, prisma.quiz, tableName, include);
+  getResources(req, res, prisma.quiz, tableName, baseQuery);
 };
 
 //  creating queries to add to time based requests
@@ -53,7 +51,11 @@ const past = {
       lt: new Date(),
     },
   },
-  include,
+  include: {
+    questions: true,
+    scores: true,
+    rating: true,
+  },
 };
 
 const current = {
@@ -65,7 +67,11 @@ const current = {
       lt: new Date(),
     },
   },
-  include,
+  include: {
+    questions: true,
+    scores: true,
+    rating: true,
+  },
 };
 
 const future = {
@@ -74,7 +80,11 @@ const future = {
       gte: new Date(),
     },
   },
-  include,
+  include: {
+    questions: true,
+    scores: true,
+    rating: true,
+  },
 };
 
 /**
@@ -115,7 +125,7 @@ const createQuiz = async (req, res) => {
     //  checking user is authorised to create quiz
     if (authCheck(user, 'ADMIN_USER', 'SUPER_ADMIN_USER') !== true) {
       return res.status(401).json({
-        msg: `not authorised to perform this action `,
+        msg: `not authorised to perform this action`,
       });
     }
 
@@ -129,10 +139,9 @@ const createQuiz = async (req, res) => {
     // checking that start date is valid
     if (startDate < currentDate) {
       return res.status(400).json({
-        msg: `start date must be greater than today's date `,
+        msg: `start date must be greater than today's date`,
       });
     }
-
     // checking that end date is valid
     if (endDate > dateAddFive || endDate < startDate) {
       return res.status(400).json({
@@ -187,7 +196,6 @@ const createQuiz = async (req, res) => {
         questions,
       },
     });
-
     // fetching newly created quiz to display to user
     const newQuiz = await prisma.quiz.findFirst({
       where: {
@@ -213,7 +221,7 @@ const createQuiz = async (req, res) => {
  * @param {Response} res
  */
 const deleteQuiz = (req, res) => {
-  deleteResource(req, res, prisma.quiz, tableName, authCheck, 'SUPER_ADMIN_USER');
+  deleteResource(req, res, prisma.quiz, tableName, 'SUPER_ADMIN_USER');
 };
 
 /**
@@ -440,12 +448,6 @@ const rateQuiz = async (req, res) => {
   try {
     const { id } = req.user;
     const { id: quizID } = req.params;
-
-    // const user = await prisma.user.findUnique({
-    //   where: {
-    //     id: Number(id),
-    //   },
-    // });
 
     const quiz = await prisma.quiz.findFirst({
       where: {

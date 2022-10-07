@@ -1,6 +1,6 @@
 const fieldValidation = (fieldName, name, minLength, MaxLength, type, mssge) => {
-  if (name.length <= minLength || name.length > MaxLength) {
-    return `${fieldName} length must be more than ${minLength} and less than ${MaxLength} characters,`;
+  if (name.length < minLength || name.length > MaxLength) {
+    return `${fieldName} must have a min length of ${minLength}, and max length of ${MaxLength} characters`;
   }
   if (name.match(type) === null) {
     return `${fieldName} must contain ${mssge}`;
@@ -91,8 +91,8 @@ const checkInputs = (inputs) => {
       fieldValidation(
         'password',
         inputs.password,
-        5,
-        12,
+        8,
+        16,
         passwordFormat,
         '1 numeric character & 1 special character',
       )
@@ -100,8 +100,8 @@ const checkInputs = (inputs) => {
       return fieldValidation(
         'password',
         inputs.password,
-        5,
-        12,
+        8,
+        16,
         passwordFormat,
         '1 numeric character & 1 special character',
       );
@@ -116,7 +116,7 @@ const checkInputs = (inputs) => {
 
   if (inputs.username) {
     if (inputs.username !== inputs.email.split('@')[0]) {
-      return 'email prefix must match username ';
+      return 'email prefix must match username';
     }
   }
 };

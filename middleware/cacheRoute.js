@@ -26,15 +26,15 @@ const cacheRoute = (req, res, next) => {
   const key = req.originalUrl + req.headers.authorization;
   const cachedRes = cache.get(key);
   if (req.method !== 'GET' && cachedRes) {
-    console.log(`${key} deleted from the cache`);
+    // console.log(`${key} deleted from the cache`);
     cache.del(key);
     return next();
   }
   if (cachedRes) {
-    console.log('Cache hit');
+    // console.log('Cache hit');
     return res.json(cachedRes);
   }
-  console.log('Cache miss');
+  // console.log('Cache miss');
   res.originalSend = res.json;
   res.json = (body) => {
     res.originalSend(body);

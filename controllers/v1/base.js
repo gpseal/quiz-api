@@ -93,13 +93,9 @@ const getResources = async (req, res, model, tableName, include) => {
      */
     // checks to see if 'include' exists as an argument, adds to findMany if it does
     // prettier-ignore
-    const resources = !include ?
-      await model.findMany() :
-      await model.findMany(
-        {
-          include,
-        },
-      );
+    console.log('include', include);
+    // const time = where.where;
+    const resources = !include ? await model.findMany() : await model.findMany(include);
 
     // if array is empty
     if (resources.length === 0) {
@@ -139,7 +135,7 @@ const deleteResource = async (req, res, model, tableName, userType) => {
     if so, check if user has proper authorization */
     if (authCheck(user, userType) !== true) {
       return res.status(401).json({
-        msg: `not authorised to perform this action `,
+        msg: `not authorised to perform this action`,
       });
     }
 
@@ -326,7 +322,7 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
     //  checking if user is authorised to seed users
     if (authCheck(user, userType1, userType2) !== true) {
       return res.status(401).json({
-        msg: `not authorised to perform this action `,
+        msg: `not authorised to perform this action`,
       });
     }
 
@@ -381,7 +377,7 @@ const seedUsers = async (req, res, usersURL, userType1, userType2) => {
     });
 
     //  Displaying data
-    return res.status(200).json({
+    return res.status(201).json({
       msg: 'Users successfully added',
       data,
     });

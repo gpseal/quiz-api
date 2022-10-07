@@ -22,4 +22,12 @@ const getUserInfo = async (userID) => {
   return user;
 };
 
-export { catchReturn, notAuthorized, getUserInfo };
+const dateFormat = (days) => {
+  const date = new Date();
+  const newDate = new Date();
+  newDate.setDate(date.getDate() + days);
+  const returnDate = newDate.toISOString().split('T')[0];
+  return returnDate;
+};
+
+export { catchReturn, notAuthorized, getUserInfo, dateFormat };

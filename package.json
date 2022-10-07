@@ -12,7 +12,7 @@
     "prisma:open": "npx prisma studio",
     "prisma:migrate": "npx prisma migrate reset && npx prisma migrate dev",
     "prisma:seed": "npx prisma db seed",
-    "test-app": "npx mocha --timeout 10000 --exit"
+    "test-app": "npx mocha --timeout 20000 --exit"
   },
   "repository": {
     "type": "git",
