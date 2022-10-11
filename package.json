@@ -9,6 +9,7 @@
     "prettier:check": "npx prettier --check .",
     "prettier:write": "npx pretty-quick --staged",
     "lint:check": "npx eslint .",
+    "lint:fix": "npx eslint --fix .",
     "prisma:open": "npx prisma studio",
     "prisma:migrate": "npx prisma migrate reset && npx prisma migrate dev",
     "prisma:seed": "npx prisma db seed",

@@ -17,6 +17,12 @@ const seedUsers = async (URL) => {
       role = 'BASIC_USER';
     }
 
+    await prisma.user.deleteMany({
+      where: {
+        role,
+      },
+    });
+
     //  salting passwords of data to be inserted
     const data = await Promise.all(
       userData.map(async (userEntry) => {
@@ -34,7 +40,7 @@ const seedUsers = async (URL) => {
       data,
     });
   } catch (err) {
-    return console.log('error');
+    return console.log(err);
   }
 };
 

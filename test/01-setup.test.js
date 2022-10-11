@@ -7,37 +7,34 @@ import seedUsers from './testSeeding.js';
 
 const prisma = new PrismaClient();
 
-const seed = (done) => {
-  //   await seedCategories();
-  // await main(); // seeding super admin
-  seedUsers('/basic-users.json');
-  done();
-  //   console.log("seedingAdmin")
-  //   await seedAdminUsers();
-  //   await seedBasicUsers();
+const seed = async () => {
+  await seedUsers('/basic-users.json');
+  await seedUsers('/admin-users.json');
 };
 
 const deleteData = async () => {
-  //   await prisma.user.deleteMany({
-  //     // empty
-  //   });
   await prisma.user.delete({
     where: {
-      email: 'simmo@email.com',
+      email: 'simmos@email.com',
     },
+  });
+
+  await prisma.user.deleteMany({
+    // empty
   });
 };
 
 // Before each test, seed the Category tables with data fetched from a GitHub Gist
 before((done) => {
   console.log('seeding');
-  seedUsers('/basic-users.json');
+  seed();
+  // seedUsers('/basic-users.json');
   done();
 });
 
 // After each test, do something
-await after(async () => {
+after((done) => {
   console.log('done');
-  await deleteData();
-  //   done();
+  deleteData();
+  done();
 });

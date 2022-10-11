@@ -228,7 +228,7 @@ const logout = async (req, res) => {
       },
     });
 
-    /* setting expire time variable to check if old tokens are to be 
+    /* setting expire time variable to check if old tokens are to be
     deleted from database, as after one hour they become void and there
     is no need for them to remain in the database */
     const expTime = new Date();
