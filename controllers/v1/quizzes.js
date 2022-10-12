@@ -256,7 +256,6 @@ const takeQuiz = async (req, res) => {
         questions: true,
       },
     });
-
     //  Checking if quiz is currently available (based on dates)
     if (Date.now() < quiz.start_date) {
       return res.status(200).json({

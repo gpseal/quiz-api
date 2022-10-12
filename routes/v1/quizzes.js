@@ -38,7 +38,7 @@ const router = Router();
 
 router.route('/').get(getQuizzes).post(createQuiz);
 router.route('/:id').get(takeQuiz).delete(deleteQuiz);
-router.route('/:id/participate').post(submitQuiz);
+router.route('/:id').post(submitQuiz);
 router.route('/:id/rate').post(rateQuiz);
 router.route('/get/:timeFrame').get(getTimeQuizzes);
 

@@ -3,9 +3,7 @@ import express, { urlencoded, json, Router } from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import listEndpoints from 'express-list-endpoints';
-/**
- * You will create the routes for institutions and departments later
- */
+import cors from 'cors';
 import compression from 'compression';
 import cacheRoute from './middleware/cacheRoute.js';
 import categories from './routes/v1/categories.js';
@@ -43,7 +41,8 @@ app.use(
 app.use(json());
 app.use(compression());
 app.use(cacheRoute);
-// app.use(limit); //  applies rate-limit to all requests
+app.use(limit); //  applies rate-limit to all requests
+app.use(cors());
 
 const getEndPoints = (req, res) => {
   const endPoints = listEndpoints(app);
