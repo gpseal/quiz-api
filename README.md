@@ -39,7 +39,7 @@ npm run prisma:seed
 
 ## Postman Documentation
 
-https://documenter.getpostman.com/view/19952142/Uyr4KKjD#09b58324-b76e-4f42-bcaf-b6e065231108
+https://documenter.getpostman.com/view/19952142/2s83zmKMKY
 <br><br>
 
 ## To deploy to Heroku
