@@ -93,7 +93,6 @@ const getResources = async (req, res, model, tableName, include) => {
      */
     // checks to see if 'include' exists as an argument, adds to findMany if it does
     // prettier-ignore
-    console.log('include', include);
     // const time = where.where;
     const resources = !include ? await model.findMany() : await model.findMany(include);
 

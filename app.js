@@ -2,9 +2,9 @@ import dotenv from 'dotenv';
 import express, { urlencoded, json, Router } from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import listEndpoints from 'express-list-endpoints';
 import cors from 'cors';
 import compression from 'compression';
+import listEndpoints from 'express-list-endpoints';
 import cacheRoute from './middleware/cacheRoute.js';
 import categories from './routes/v1/categories.js';
 import quizzes from './routes/v1/quizzes.js';
@@ -41,17 +41,18 @@ app.use(
 app.use(json());
 app.use(compression());
 app.use(cacheRoute);
-app.use(limit); //  applies rate-limit to all requests
+// app.use(limit); //  applies rate-limit to all requests
 app.use(cors());
 
 const getEndPoints = (req, res) => {
   const endPoints = listEndpoints(app);
   res.status(200).send({
+    msg: `Endpoints successfully collected`,
     endPoints,
   });
 };
 
-app.get(`/${BASE_URL}/${CURRENT_VERSION}/`, getEndPoints);
+app.get(`/${BASE_URL}/${CURRENT_VERSION}/`, authRoute, getEndPoints);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/auth`, auth);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/categories`, authRoute, categories);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/quizzes`, authRoute, quizzes);

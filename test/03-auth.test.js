@@ -16,26 +16,6 @@ const resetUser = (user, orignalUser) => {
   });
 };
 
-// const adminUserOriginal = {
-//     first_name: 'Craig',
-//     last_name: 'Simpson',
-//     email: 'simmos@email.com',
-//     username: 'simmos',
-//     password: 'pas@1sword6',
-//     confirmPassword: 'pas@1sword6',
-//     role: 'ADMIN_USER',
-//   };
-
-// const adminUser = {
-//   first_name: 'Craig',
-//   last_name: 'Simpson',
-//   email: 'simmos@email.com',
-//   username: 'simmos',
-//   password: 'pas@1sword6',
-//   confirmPassword: 'pas@1sword6',
-//   role: 'ADMIN_USER',
-// };
-
 describe('auth', () => {
   it('should reject registration due to length of first name', (done) => {
     adminUser.first_name = 'c';
@@ -228,7 +208,20 @@ describe('auth', () => {
       });
   });
 
-  it('should login admin user with valid input', (done) => {
+  it('should not register user due to repeated username', (done) => {
+    resetUser(adminUser, adminUserOriginal);
+    chai
+      .request(app)
+      .post(`${BASE_URL}/register`)
+      .send(adminUser)
+      .end((_, res) => {
+        chai.expect(res.status).to.be.equal(409);
+        chai.expect(res.body.msg).to.be.equal('Username already exists');
+        done();
+      });
+  });
+
+  it('should login admin user with valid input (email)', (done) => {
     const { email, password } = adminUser;
     chai
       .request(app)
@@ -241,6 +234,57 @@ describe('auth', () => {
         chai.expect(res.status).to.be.equal(200);
         chai.expect(res.body).to.be.a('object');
         chai.expect(res.body.msg).to.be.equal(`${adminUser.username} successfully logged in`);
+        done();
+      });
+  });
+
+  it('should login admin user with valid input (username)', (done) => {
+    const { username, password } = adminUser;
+    chai
+      .request(app)
+      .post(`${BASE_URL}/login`)
+      .send({
+        username,
+        password,
+      })
+      .end((_, res) => {
+        chai.expect(res.status).to.be.equal(200);
+        chai.expect(res.body).to.be.a('object');
+        chai.expect(res.body.msg).to.be.equal(`${adminUser.username} successfully logged in`);
+        done();
+      });
+  });
+
+  it('should not allow login due to invalid email input', (done) => {
+    const email = 'test@test.com';
+    const { password } = adminUser;
+    chai
+      .request(app)
+      .post(`${BASE_URL}/login`)
+      .send({
+        email,
+        password,
+      })
+      .end((_, res) => {
+        chai.expect(res.status).to.be.equal(401);
+        chai.expect(res.body.msg).to.be.equal('Invalid email');
+        done();
+      });
+  });
+
+  it('should not allow login due to invalid password input', (done) => {
+    const password = 'testPassword';
+    const { email } = adminUser;
+    chai
+      .request(app)
+      .post(`${BASE_URL}/login`)
+      .send({
+        email,
+        password,
+      })
+      .end((_, res) => {
+        chai.expect(res.status).to.be.equal(401);
+        chai.expect(res.body.msg).to.be.equal('Invalid password');
         done();
       });
   });

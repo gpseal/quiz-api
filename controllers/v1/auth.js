@@ -256,8 +256,8 @@ const logout = async (req, res) => {
       msg: `${user.username} successfully logged out`,
     });
   } catch (err) {
-    return res.status(498).json({
-      msg: 'invalid token',
+    return res.status(500).json({
+      msg: err.message,
     });
   }
 };

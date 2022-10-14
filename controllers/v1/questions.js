@@ -21,7 +21,6 @@ const createQuestionSet = async (req, res) => {
   try {
     const quizInfo = await axios.get(`http://localhost:3000/api/v1/quizzes/1`);
     const { categoryid } = quizInfo.data.data;
-    console.log('categoryid: ', categoryid);
 
     const response = await axios.get(
       `https://opentdb.com/api.php?amount=10&category=${categoryid}`,

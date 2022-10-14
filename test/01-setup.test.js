@@ -12,29 +12,26 @@ const seed = async () => {
   await seedUsers('/admin-users.json');
 };
 
-const deleteData = async () => {
-  await prisma.user.delete({
+const deleteData = () => {
+  prisma.user.delete({
     where: {
       email: 'simmos@email.com',
     },
   });
 
-  await prisma.user.deleteMany({
+  prisma.user.deleteMany({
     // empty
   });
 };
 
 // Before each test, seed the Category tables with data fetched from a GitHub Gist
 before((done) => {
-  console.log('seeding');
   seed();
-  // seedUsers('/basic-users.json');
   done();
 });
 
 // After each test, do something
 after((done) => {
-  console.log('done');
   deleteData();
   done();
 });

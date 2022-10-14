@@ -38,32 +38,32 @@ describe('Seeding', () => {
       });
   });
 
-  it('should seed admin users', (done) => {
-    chai
-      .request(app)
-      .post(`${BASE_URL}/auth/login`)
-      .send({
-        email,
-        password,
-      })
-      .end((_, loginRes) => {
-        chai
-          .request(app)
-          .post(`${BASE_URL}/users/seed/Admin`)
-          .auth(loginRes.body.token, {
-            type: 'bearer',
-          })
-          .send({
-            //  empty
-          })
-          .end((__, quizRes) => {
-            chai.expect(quizRes.status).to.be.equal(201);
-            chai.expect(quizRes.body).to.be.a('object');
-            chai.expect(quizRes.body.msg).to.be.equal('Users successfully added');
-            done();
-          });
-      });
-  });
+  // it('should seed admin users', (done) => {
+  //   chai
+  //     .request(app)
+  //     .post(`${BASE_URL}/auth/login`)
+  //     .send({
+  //       email,
+  //       password,
+  //     })
+  //     .end((_, loginRes) => {
+  //       chai
+  //         .request(app)
+  //         .post(`${BASE_URL}/users/seed/Admin`)
+  //         .auth(loginRes.body.token, {
+  //           type: 'bearer',
+  //         })
+  //         .send({
+  //           //  empty
+  //         })
+  //         .end((__, quizRes) => {
+  //           chai.expect(quizRes.status).to.be.equal(201);
+  //           chai.expect(quizRes.body).to.be.a('object');
+  //           chai.expect(quizRes.body.msg).to.be.equal('Users successfully added');
+  //           done();
+  //         });
+  //     });
+  // });
 
   // it("should seed basic users", (done) => {
   //   chai
