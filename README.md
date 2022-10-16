@@ -126,5 +126,5 @@ $ npm run test-app
 Run code coverage tests
 
 ```
-$ ?????
+$ npm run c8:mocha
 ```
