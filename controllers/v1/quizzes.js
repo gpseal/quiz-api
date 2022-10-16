@@ -133,7 +133,7 @@ const createQuiz = async (req, res) => {
     const startDate = new Date(req.body.start_date);
     const endDate = new Date(req.body.end_date);
     const currentDate = new Date();
-    const dateAddFive = new Date();
+    const dateAddFive = new Date(startDate);
     dateAddFive.setDate(startDate.getDate() + 5);
 
     // checking that start date is valid
