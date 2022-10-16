@@ -41,7 +41,7 @@ app.use(
 app.use(json());
 app.use(compression());
 app.use(cacheRoute);
-// app.use(limit); //  applies rate-limit to all requests
+app.use(limit); //  applies rate-limit to all requests
 app.use(cors());
 
 const getEndPoints = (req, res) => {
