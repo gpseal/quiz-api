@@ -485,7 +485,7 @@ const rateQuiz = async (req, res) => {
       },
       data: {
         // eslint-disable-next-line no-underscore-dangle
-        avgScore: average._avg.rating,
+        avgRating: average._avg.rating,
       },
     });
 
