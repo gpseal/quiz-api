@@ -61,6 +61,13 @@ app.use(`/${BASE_URL}/${CURRENT_VERSION}/ratings`, authRoute, ratings);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/scores`, authRoute, scores);
 app.use(`/${BASE_URL}/${CURRENT_VERSION}/users`, authRoute, users);
 
+// if endpoint does not exist catch 404 and forward to error handler
+app.use((req, res) => {
+  res.status(404).json({
+    msg: 'Your page was not found',
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
 });
