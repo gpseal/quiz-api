@@ -29,7 +29,7 @@ $ cp example.env .env
 - Open .env file and complete with appropriate values
   - DATABASE_URL = [string to connect to prisma database]
   - SHADOW_DATABASE_URL = [string to connect to prisma shadow database]
-  - JWT_SECRET = [string to set tocken password]
+  - JWT_SECRET = [string to set token password]
   - JWT_LIFETIME = [value to set token lifespan]
 - Run app:
 
@@ -62,7 +62,7 @@ https://documenter.getpostman.com/view/19952142/2s83zmKMKY
 - New options will appear, enable **automatic deploys** and choose the appropriate branch to deploy from
 - Under the **"settings"** tab, click **"Reveal Config Vars"**
 - Enter DATABASE_URL (from .env) and the appropriate string to connect to mongodb
-- Enter JWT_SECRET (from .env) and the appropriate string to set tocken password
+- Enter JWT_SECRET (from .env) and the appropriate string to set token password
 - Enter JWT_LIFETIME (from .env) and the appropriate value to set token lifespan
 - Copy the generated URL and use as required
 
