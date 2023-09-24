@@ -4,11 +4,6 @@
 
 ![Quiz ERD](https://user-images.githubusercontent.com/83617997/195215055-d9146c9e-18f4-4c38-ad4b-cbbf0bfc2f7e.png)
 
-## Heroku URL
-
-https://id608001-sealgp1.herokuapp.com
-<br><br>
-
 ## To run locally
 
 Clone repository to local PC,
